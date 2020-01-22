@@ -216,7 +216,7 @@ def train(epoch, train_loader, model, contrast, criterion_l, criterion_ab, optim
         bsz = inputs.size(0)
         inputs = inputs.float()
         if torch.cuda.is_available():
-            index = index.cuda(async=True)
+            index = index.cuda(non_blocking=True)
             inputs = inputs.cuda()
 
         # ===================forward=====================
