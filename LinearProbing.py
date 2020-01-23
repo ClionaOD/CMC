@@ -53,7 +53,7 @@ def parse_option():
                                                                          'resnet50v2', 'resnet101v2', 'resnet18v2',
                                                                          'resnet50v3', 'resnet101v3', 'resnet18v3'])
     parser.add_argument('--model_path', type=str, default=None, help='the model to test')
-    parser.add_argument('--layer', type=int, default=6, help='which layer to evaluate')
+    parser.add_argument('--layer', type=int, default=5, help='which layer to evaluate')
 
     # dataset
     parser.add_argument('--dataset', type=str, default='imagenet', choices=['imagenet100', 'imagenet'])
