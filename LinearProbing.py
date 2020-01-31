@@ -220,13 +220,13 @@ def train(epoch, train_loader, model, classifier, criterion, optimizer, opt):
 
     end = time.time()
 
-    train_loader_iter = iter(train_loader) #COD
-    for i in range(1): #COD
-        input, target = next(train_loader_iter) #COD
-        idx = 0 #COD
+    #train_loader_iter = iter(train_loader) #COD
+    #for i in range(1): #COD
+    #    input, target = next(train_loader_iter) #COD
+    #    idx = 0 #COD
 
 
-    #for idx, (input, target) in enumerate(train_loader): COD
+    for idx, (input, target) in enumerate(train_loader):
         # measure data loading time
         data_time.update(time.time() - end)
 
