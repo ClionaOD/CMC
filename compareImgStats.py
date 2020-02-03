@@ -5,16 +5,21 @@ from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 from dataset import ImageFolderInstance
 
-dataPath='/movie-associations'
-data_folder = os.path.join(dataPath, 'train')
-train_dataset = ImageFolderInstance(data_folder, transform=transforms.ToTensor())
+def load_dataset():
+    data_path = '/movie-associations/train/'
+    train_dataset = torchvision.datasets.ImageFolder(
+        root=data_path,
+        transform=torchvision.transforms.ToTensor()
+    )
+    train_loader = torch.utils.data.DataLoader(
+        train_dataset,
+        batch_size=64,
+        num_workers=0,
+        shuffle=True
+    )
+    return train_loader
 
-loader = DataLoader(
-    train_dataset,
-    batch_size=10,
-    num_workers=1,
-    shuffle=False
-)
+loader = load_dataset()
 
 mean = 0.
 std = 0.
