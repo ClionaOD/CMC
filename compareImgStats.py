@@ -6,11 +6,16 @@ from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 from dataset import ImageFolderInstance
 
+train_transform = transforms.Compose([
+        transforms.RandomResizedCrop(224, scale=(args.crop_low, 1.)),
+        transforms.ToTensor(),
+    ])
+
 def load_dataset():
     data_path = '/movie-associations/train/'
     train_dataset = torchvision.datasets.ImageFolder(
         root=data_path,
-        transform=torchvision.transforms.ToTensor()
+        transform=train_transform
     )
     train_loader = torch.utils.data.DataLoader(
         train_dataset,
