@@ -1,5 +1,6 @@
 import os
 import torch
+from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 from dataset import ImageFolderInstance
