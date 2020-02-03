@@ -7,7 +7,7 @@ from torchvision import datasets, transforms
 from dataset import ImageFolderInstance
 
 train_transform = transforms.Compose([
-        transforms.RandomResizedCrop(224, scale=(args.crop_low, 1.)),
+        transforms.RandomResizedCrop(224, scale=(0.2, 1.)),
         transforms.ToTensor(),
     ])
 
