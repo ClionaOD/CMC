@@ -18,12 +18,14 @@ from dataset import RGB2Lab, RGB2YCbCr
 from util import adjust_learning_rate, AverageMeter
 
 from models.alexnet import MyAlexNetCMC
+from models.alexnet import TemporalAlexNetCMC #COD 20/02/07
 from models.resnet import MyResNetsCMC
 from NCE.NCEAverage import NCEAverage
 from NCE.NCECriterion import NCECriterion
 from NCE.NCECriterion import NCESoftmaxLoss
 
 from dataset import ImageFolderInstance
+from dataset import twoImageFolderInstance #COD 20/02/07
 
 try:
     from apex import amp, optimizers
@@ -78,7 +80,7 @@ def parse_option():
     parser.add_argument('--tb_path', type=str, default=None, help='path to tensorboard')
 
     # add new views
-    parser.add_argument('--view', type=str, default='Lab', choices=['Lab', 'YCbCr'])
+    parser.add_argument('--view', type=str, default='Lab', choices=['Lab', 'YCbCr', 'temporal']) #COD 20/02/06 added temporal
 
     # mixed precision setting
     parser.add_argument('--amp', action='store_true', help='using mixed precision')
@@ -86,6 +88,9 @@ def parse_option():
 
     # data crop threshold
     parser.add_argument('--crop_low', type=float, default=0.2, help='low area in crop')
+
+    # range for timelag to test (COD 20/02/06)
+    parser.add_argument('--time_lag', type=int, default=100, help='number of 1 second frames to lag by')
 
     opt = parser.parse_args()
 
@@ -136,6 +141,10 @@ def get_train_loader(args):
         mean = [116.151, 121.080, 132.342]
         std = [109.500, 111.855, 111.964]
         color_transfer = RGB2YCbCr()
+    elif args.view == 'temporal':        #COD 20/02/07
+        mean = []
+        std = []
+        color_transfer = 
     else:
         raise NotImplemented('view not implemented {}'.format(args.view))
     normalize = transforms.Normalize(mean=mean, std=std)
@@ -147,7 +156,12 @@ def get_train_loader(args):
         transforms.ToTensor(),
         normalize,
     ])
-    train_dataset = ImageFolderInstance(data_folder, transform=train_transform)
+
+    #COD 20/02/07 - include train_dataset for loading two images
+    if not args.view == 'temporal':
+        train_dataset = ImageFolderInstance(data_folder, transform=train_transform)
+    else:
+        train_dataset = twoImageFolderInstance(data_folder, time_lag=3, transform=train_transform)
     train_sampler = None
 
     # train loader
@@ -165,15 +179,22 @@ def get_train_loader(args):
 def set_model(args, n_data):
     # set the model
     if args.model == 'alexnet':
-        model = MyAlexNetCMC(args.feat_dim)
+        if not args.view == 'temporal':             #COD 20/02/07 include two full alexnets for the temporal view
+            model = MyAlexNetCMC(args.feat_dim)     
+        else:
+            model = TemporalAlexNetCMC(args.feat_dim)
     elif args.model.startswith('resnet'):
         model = MyResNetsCMC(args.model)
     else:
         raise ValueError('model not supported yet {}'.format(args.model))
 
     contrast = NCEAverage(args.feat_dim, n_data, args.nce_k, args.nce_t, args.nce_m, args.softmax)
-    criterion_l = NCESoftmaxLoss() if args.softmax else NCECriterion(n_data)
-    criterion_ab = NCESoftmaxLoss() if args.softmax else NCECriterion(n_data)
+    if args.view == 'Lab':
+        criterion_l = NCESoftmaxLoss() if args.softmax else NCECriterion(n_data)
+        criterion_ab = NCESoftmaxLoss() if args.softmax else NCECriterion(n_data)
+    if args.view == 'temporal':                                                                     #COD 20/02/07 need to check NCE code to see if this makes sense
+        criterion_one = NCESoftmaxLoss() if args.softmax else NCECriterion(n_data)
+        criterion_two = NCESoftmaxLoss() if args.softmax else NCECriterion(n_data)
 
     if torch.cuda.is_available():
         model = model.cuda()
@@ -210,67 +231,137 @@ def train(epoch, train_loader, model, contrast, criterion_l, criterion_ab, optim
     ab_prob_meter = AverageMeter()
 
     end = time.time()
-    for idx, (inputs, _, index) in enumerate(train_loader):
-        data_time.update(time.time() - end)
+    if not args.view == 'temporal':
+        for idx, (inputs, _, index) in enumerate(train_loader):
+            data_time.update(time.time() - end)
 
-        bsz = inputs.size(0)
-        inputs = inputs.float()
-        if torch.cuda.is_available():
-            index = index.cuda(non_blocking=True)
-            inputs = inputs.cuda()
+            bsz = inputs.size(0)
+            inputs = inputs.float()
+            if torch.cuda.is_available():
+                index = index.cuda(non_blocking=True)
+                inputs = inputs.cuda()
 
-        # ===================forward=====================
-        feat_l, feat_ab = model(inputs)
-        out_l, out_ab = contrast(feat_l, feat_ab, index)
+            # ===================forward=====================
+            feat_l, feat_ab = model(inputs)
+            out_l, out_ab = contrast(feat_l, feat_ab, index)
 
-        l_loss = criterion_l(out_l)
-        ab_loss = criterion_ab(out_ab)
-        l_prob = out_l[:, 0].mean()
-        ab_prob = out_ab[:, 0].mean()
+            l_loss = criterion_l(out_l)
+            ab_loss = criterion_ab(out_ab)
+            l_prob = out_l[:, 0].mean()
+            ab_prob = out_ab[:, 0].mean()
 
-        loss = l_loss + ab_loss
+            loss = l_loss + ab_loss
 
-        # ===================backward=====================
-        optimizer.zero_grad()
-        if opt.amp:
-            with amp.scale_loss(loss, optimizer) as scaled_loss:
-                scaled_loss.backward()
-        else:
-            loss.backward()
-        optimizer.step()
+            # ===================backward=====================
+            optimizer.zero_grad()
+            if opt.amp:
+                with amp.scale_loss(loss, optimizer) as scaled_loss:
+                    scaled_loss.backward()
+            else:
+                loss.backward()
+            optimizer.step()
 
-        # ===================meters=====================
-        losses.update(loss.item(), bsz)
-        l_loss_meter.update(l_loss.item(), bsz)
-        l_prob_meter.update(l_prob.item(), bsz)
-        ab_loss_meter.update(ab_loss.item(), bsz)
-        ab_prob_meter.update(ab_prob.item(), bsz)
+            # ===================meters=====================
+            losses.update(loss.item(), bsz)
+            l_loss_meter.update(l_loss.item(), bsz)
+            l_prob_meter.update(l_prob.item(), bsz)
+            ab_loss_meter.update(ab_loss.item(), bsz)
+            ab_prob_meter.update(ab_prob.item(), bsz)
 
-        torch.cuda.synchronize()
-        batch_time.update(time.time() - end)
-        end = time.time()
+            torch.cuda.synchronize()
+            batch_time.update(time.time() - end)
+            end = time.time()
 
-        # print info
-        if (idx + 1) % opt.print_freq == 0:
-            print('Train: [{0}][{1}/{2}]\t'
-                  'BT {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
-                  'DT {data_time.val:.3f} ({data_time.avg:.3f})\t'
-                  'loss {loss.val:.3f} ({loss.avg:.3f})\t'
-                  'l_p {lprobs.val:.3f} ({lprobs.avg:.3f})\t'
-                  'ab_p {abprobs.val:.3f} ({abprobs.avg:.3f})'.format(
-                   epoch, idx + 1, len(train_loader), batch_time=batch_time,
-                   data_time=data_time, loss=losses, lprobs=l_prob_meter,
-                   abprobs=ab_prob_meter))
-            print(out_l.shape)
-            sys.stdout.flush()
+            # print info
+            if (idx + 1) % opt.print_freq == 0:
+                print('Train: [{0}][{1}/{2}]\t'
+                    'BT {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
+                    'DT {data_time.val:.3f} ({data_time.avg:.3f})\t'
+                    'loss {loss.val:.3f} ({loss.avg:.3f})\t'
+                    'l_p {lprobs.val:.3f} ({lprobs.avg:.3f})\t'
+                    'ab_p {abprobs.val:.3f} ({abprobs.avg:.3f})'.format(
+                    epoch, idx + 1, len(train_loader), batch_time=batch_time,
+                    data_time=data_time, loss=losses, lprobs=l_prob_meter,
+                    abprobs=ab_prob_meter))
+                print(out_l.shape)
+                sys.stdout.flush()         
+    
+    #COD 20/02/07 add temporal training for two images
+    else:
+        for idx, [(inputs1, _, index), (inputs2, _, lagged_index)] in enumerate(train_loader):
+            data_time.update(time.time() - end)
 
-    return l_loss_meter.avg, l_prob_meter.avg, ab_loss_meter.avg, ab_prob_meter.avg
+            bsz = inputs1.size(0)
+            inputs1 = inputs1.float()
+            inputs2 = inputs2.float()
+
+            if torch.cuda.is_available():
+                index = index.cuda(non_blocking=True)
+                inputs1 = inputs1.cuda()
+
+                lagged_index = lagged_index.cuda(non_blocking=True)
+                inputs2 = inputs2.cuda()
+
+            # ===================forward=====================
+            feat_one, feat_two = model(inputs)
+            out_one, out_two = contrast(feat_one, feat_two, index)
+
+            one_loss = criterion_one(out_one)
+            two_loss = criterion_two(out_two)
+            one_prob = out_one[:, 0].mean()
+            two_prob = out_two[:, 0].mean()
+
+            loss = one_loss + two_loss
+
+            # ===================backward=====================
+            optimizer.zero_grad()
+            if opt.amp:
+                with amp.scale_loss(loss, optimizer) as scaled_loss:
+                    scaled_loss.backward()
+            else:
+                loss.backward()
+            optimizer.step()
+
+            # ===================meters=====================
+            losses.update(loss.item(), bsz)
+            one_loss_meter.update(one_loss.item(), bsz)
+            one_prob_meter.update(one_prob.item(), bsz)
+            two_loss_meter.update(two_loss.item(), bsz)
+            two_prob_meter.update(two_prob.item(), bsz)
+
+            torch.cuda.synchronize()
+            batch_time.update(time.time() - end)
+            end = time.time()
+
+            # print info
+            if (idx + 1) % opt.print_freq == 0:
+                print('Train: [{0}][{1}/{2}]\t'
+                    'BT {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
+                    'DT {data_time.val:.3f} ({data_time.avg:.3f})\t'
+                    'loss {loss.val:.3f} ({loss.avg:.3f})\t'
+                    'one_p {oneprobs.val:.3f} ({oneprobs.avg:.3f})\t'
+                    'two_p {twoprobs.val:.3f} ({twoprobs.avg:.3f})'.format(
+                    epoch, idx + 1, len(train_loader), batch_time=batch_time,
+                    data_time=data_time, loss=losses, oneprobs=one_prob_meter,
+                    twoprobs=two_prob_meter))
+                print(out_one.shape)
+                sys.stdout.flush()
+
+    if not args.view == 'temporal':
+        return l_loss_meter.avg, l_prob_meter.avg, ab_loss_meter.avg, ab_prob_meter.avg
+    else: 
+        return one_loss_meter.avg, one_prob_meter.avg, two_loss_meter.avg, two_prob_meter.avg
 
 
 def main():
 
     # parse the args
     args = parse_option()
+
+    #make sure temporal criteria are used if necessary COD 20/02/07
+    if args.view == 'temporal':             
+        criterion_l = criterion_one
+        criterion_ab = criterion_two
 
     # set the loader
     train_loader, n_data = get_train_loader(args)
@@ -320,11 +411,22 @@ def main():
         time2 = time.time()
         print('epoch {}, total time {:.2f}'.format(epoch, time2 - time1))
 
-        # tensorboard logger
-        logger.log_value('l_loss', l_loss, epoch)
-        logger.log_value('l_prob', l_prob, epoch)
-        logger.log_value('ab_loss', ab_loss, epoch)
-        logger.log_value('ab_prob', ab_prob, epoch)
+        # tensorboard logger, set appropriate labels (COD 20/02/07)
+        if not args.view == 'temporal':
+            loss_label1 = 'l_loss'
+            prob_label1 = 'l_prob'
+            loss_label2 = 'ab_loss'
+            prob_label2 = 'ab_prob'
+        else:
+            loss_label1 = 'img1_loss'
+            prob_label1 = 'img1_prob'
+            loss_label2 = 'img2_loss'
+            prob_label2 = 'img2_prob'
+        
+        logger.log_value('{}'.format(loss_label1), l_loss, epoch)
+        logger.log_value('{}'.format(prob_label1), l_prob, epoch)
+        logger.log_value('{}'.format(loss_label2), ab_loss, epoch)
+        logger.log_value('{}'.format(prob_label2), ab_prob, epoch)
 
         # save model
         if epoch % args.save_freq == 0:

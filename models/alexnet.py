@@ -13,6 +13,15 @@ class MyAlexNetCMC(nn.Module):
     def forward(self, x, layer=8):
         return self.encoder(x, layer)
 
+class TemporalAlexNetCMC(nn.Module):
+    def __init__(self, feat_dim=128):
+        super(TemporalAlexNetCMC, self).__init__()
+        self.encoder = alexnet_temporal(feat_dim=feat_dim)
+        self.encoder = nn.DataParallel(self.encoder)
+    
+    def forward(self, x, layer=8):
+        return self.encoder(x, layer)
+
 
 class alexnet(nn.Module):
     def __init__(self, feat_dim=128):
@@ -27,6 +36,16 @@ class alexnet(nn.Module):
         feat_ab = self.ab_to_l(ab, layer)
         return feat_l, feat_ab
 
+class alexnet_temporal(nn.Module):
+    def __init__(self, feat_dim=128):
+        super(alexnet_temporal, self).__init__()
+        self.alexnet_one = alexnet_full(feat_dim=feat_dim)
+        self.alexnet_two = alexnet_full(feat_dim=feat_dim)
+
+    def forward(self, x, y, layer=8):
+        feat_one = self.alexnet_one(x, layer)
+        feat_two = self.alexnet_two(y, layer)
+        return feat_one, feat_two
 
 class alexnet_half(nn.Module):
     def __init__(self, in_channel=1, feat_dim=128):
@@ -71,6 +90,81 @@ class alexnet_half(nn.Module):
         )
         self.fc8 = nn.Sequential(
             nn.Linear(4096 // 2, feat_dim)
+        )
+        self.l2norm = Normalize(2)
+
+    def forward(self, x, layer):
+        if layer <= 0:
+            return x
+        x = self.conv_block_1(x)
+        if layer == 1:
+            return x
+        x = self.conv_block_2(x)
+        if layer == 2:
+            return x
+        x = self.conv_block_3(x)
+        if layer == 3:
+            return x
+        x = self.conv_block_4(x)
+        if layer == 4:
+            return x
+        x = self.conv_block_5(x)
+        if layer == 5:
+            return x
+        x = x.view(x.shape[0], -1)
+        x = self.fc6(x)
+        if layer == 6:
+            return x
+        x = self.fc7(x)
+        if layer == 7:
+            return x
+        x = self.fc8(x)
+        x = self.l2norm(x)
+        return x
+
+class alexnet_full(nn.Module):
+    def __init__(self, feat_dim=128):
+        super(alexnet_full, self).__init__()
+        self.conv_block_1 = nn.Sequential(
+            nn.Conv2d(in_channel, 96, 11, 4, 2, bias=False),
+            nn.BatchNorm2d(96),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(3, 2),
+        )
+        self.conv_block_2 = nn.Sequential(
+            nn.Conv2d(96, 256, 5, 1, 2, bias=False),
+            nn.BatchNorm2d(256),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(3, 2),
+        )
+        self.conv_block_3 = nn.Sequential(
+            nn.Conv2d(256, 384, 3, 1, 1, bias=False),
+            nn.BatchNorm2d(384),
+            nn.ReLU(inplace=True),
+        )
+        self.conv_block_4 = nn.Sequential(
+            nn.Conv2d(384, 384, 3, 1, 1, bias=False),
+            nn.BatchNorm2d(384),
+            nn.ReLU(inplace=True),
+        )
+        self.conv_block_5 = nn.Sequential(
+            nn.Conv2d(384, 256, 3, 1, 1, bias=False),
+            nn.BatchNorm2d(256),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(3, 2),
+        )
+        self.fc6 = nn.Sequential(
+            nn.Linear(256 * 6 * 6 , 4096 ),
+            nn.BatchNorm1d(4096 ),
+            nn.ReLU(inplace=True),
+        )
+        self.fc7 = nn.Sequential(
+            nn.Linear(4096 , 4096 ),
+            nn.BatchNorm1d(4096 ),
+            nn.ReLU(inplace=True),
+        )
+        self.fc8 = nn.Sequential(
+            nn.Linear(4096, feat_dim)
         )
         self.l2norm = Normalize(2)
 

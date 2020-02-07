@@ -35,6 +35,32 @@ class ImageFolderInstance(datasets.ImageFolder):
 
         return img, target, index
 
+class twoImageFolderInstance(datasets.ImageFolder):
+    """Folder datasets returing two linked images and their indices
+    """
+
+    def __init__(self, root, time_lag, transform=None, target_transform=None):
+        super(twoImageFolderInstance, self).__init__(root, transform, target_transform)
+        self.time_lag = time_lag
+    
+    def __getitem__(self, index):
+        path1, target1 = self.imgs[index]
+        image1 = self.loader(path1)
+        if self.transform is not None:
+            img1 = self.transform(image1)
+        if self.target_transform is not None:
+            target1 = self.target_transform(target1)
+
+        lagged_index = index + self.time_lag
+        path2, target2 = self.imgs[lagged_index]
+        image2 = self.loader(path2)
+        if self.transform is not None:
+            img2 = self.transform(image2)
+        if self.target_transform is not None:
+            target2 = self.target_transform(target2)
+        
+        return (img1,target1,index) , (img2,target2,lagged_index)
+
 
 class RGB2Lab(object):
     """Convert RGB PIL image to ndarray Lab."""
@@ -45,7 +71,7 @@ class RGB2Lab(object):
 
 
 class RGB2HSV(object):
-    """Convert RGB PIL image to ndarray HSV."""
+    """Convert RGB PIL image to ndarray HSV. """
     def __call__(self, img):
         img = np.asarray(img, np.uint8)
         img = color.rgb2hsv(img)
