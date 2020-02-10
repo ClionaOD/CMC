@@ -161,7 +161,7 @@ def get_train_loader(args):
     if not args.view == 'temporal':
         train_dataset = ImageFolderInstance(data_folder, transform=train_transform)
     else:
-        train_dataset = twoImageFolderInstance(data_folder, time_lag=3, transform=train_transform)
+        train_dataset = twoImageFolderInstance(data_folder, time_lag=args.time_lag, transform=train_transform)
     train_sampler = None
 
     # train loader
@@ -188,13 +188,9 @@ def set_model(args, n_data):
     else:
         raise ValueError('model not supported yet {}'.format(args.model))
 
-    contrast = NCEAverage(args.feat_dim, n_data, args.nce_k, args.nce_t, args.nce_m, args.softmax)
-    if args.view == 'Lab':
-        criterion_l = NCESoftmaxLoss() if args.softmax else NCECriterion(n_data)
-        criterion_ab = NCESoftmaxLoss() if args.softmax else NCECriterion(n_data)
-    if args.view == 'temporal':                                                                     #COD 20/02/07 need to check NCE code to see if this makes sense
-        criterion_one = NCESoftmaxLoss() if args.softmax else NCECriterion(n_data)
-        criterion_two = NCESoftmaxLoss() if args.softmax else NCECriterion(n_data)
+    contrast = NCEAverage(args.feat_dim, n_data, args.nce_k, args.nce_t, args.nce_m, args.softmax) #NCEAverage to be checked, criterion is ok (naming of l ab is kept for simplicity only) 20/02/10
+    criterion_l = NCESoftmaxLoss() if args.softmax else NCECriterion(n_data)
+    criterion_ab = NCESoftmaxLoss() if args.softmax else NCECriterion(n_data)
 
     if torch.cuda.is_available():
         model = model.cuda()
@@ -306,8 +302,8 @@ def train(epoch, train_loader, model, contrast, criterion_l, criterion_ab, optim
             feat_one, feat_two = model(inputs)
             out_one, out_two = contrast(feat_one, feat_two, index)
 
-            one_loss = criterion_one(out_one)
-            two_loss = criterion_two(out_two)
+            one_loss = criterion_l(out_one) #l is naming convention only
+            two_loss = criterion_ab(out_two) #ab is naming only
             one_prob = out_one[:, 0].mean()
             two_prob = out_two[:, 0].mean()
 
@@ -324,10 +320,10 @@ def train(epoch, train_loader, model, contrast, criterion_l, criterion_ab, optim
 
             # ===================meters=====================
             losses.update(loss.item(), bsz)
-            one_loss_meter.update(one_loss.item(), bsz)
-            one_prob_meter.update(one_prob.item(), bsz)
-            two_loss_meter.update(two_loss.item(), bsz)
-            two_prob_meter.update(two_prob.item(), bsz)
+            l_loss_meter.update(one_loss.item(), bsz)       #name only
+            l_prob_meter.update(one_prob.item(), bsz)       #name only
+            ab_loss_meter.update(two_loss.item(), bsz)      #name only
+            ab_prob_meter.update(two_prob.item(), bsz)      #name only
 
             torch.cuda.synchronize()
             batch_time.update(time.time() - end)
@@ -342,26 +338,17 @@ def train(epoch, train_loader, model, contrast, criterion_l, criterion_ab, optim
                     'one_p {oneprobs.val:.3f} ({oneprobs.avg:.3f})\t'
                     'two_p {twoprobs.val:.3f} ({twoprobs.avg:.3f})'.format(
                     epoch, idx + 1, len(train_loader), batch_time=batch_time,
-                    data_time=data_time, loss=losses, oneprobs=one_prob_meter,
-                    twoprobs=two_prob_meter))
+                    data_time=data_time, loss=losses, oneprobs=l_prob_meter,
+                    twoprobs=ab_prob_meter))
                 print(out_one.shape)
                 sys.stdout.flush()
 
-    if not args.view == 'temporal':
-        return l_loss_meter.avg, l_prob_meter.avg, ab_loss_meter.avg, ab_prob_meter.avg
-    else: 
-        return one_loss_meter.avg, one_prob_meter.avg, two_loss_meter.avg, two_prob_meter.avg
-
+    return l_loss_meter.avg, l_prob_meter.avg, ab_loss_meter.avg, ab_prob_meter.avg   
 
 def main():
 
     # parse the args
     args = parse_option()
-
-    #make sure temporal criteria are used if necessary COD 20/02/07
-    if args.view == 'temporal':             
-        criterion_l = criterion_one
-        criterion_ab = criterion_two
 
     # set the loader
     train_loader, n_data = get_train_loader(args)
