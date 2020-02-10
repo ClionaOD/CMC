@@ -43,6 +43,8 @@ class alexnet_temporal(nn.Module):
         self.alexnet_two = alexnet_full(feat_dim=feat_dim)
 
     def forward(self, x, y, layer=8):
+        x = torch.Tensor(x)
+        y = torch.Tensor(y)
         feat_one = self.alexnet_one(x, layer)
         feat_two = self.alexnet_two(y, layer)
         return feat_one, feat_two

@@ -25,8 +25,9 @@ print('number of samples: {}'.format(n_data))
 
 for idx, [(inputs1, _, index), (inputs2, _, lagged_index)] in enumerate(train_loader):
 
-    bsz = inputs.size(0)
-    inputs = inputs.float()
+    bsz = inputs1.size(0)
+    inputs1 = inputs1.float()
+    inputs2 = inputs2.float()
     if torch.cuda.is_available():
         index = index.cuda(non_blocking=True)
         inputs = inputs.cuda()
