@@ -126,7 +126,7 @@ class alexnet_full(nn.Module):
     def __init__(self, feat_dim=128):
         super(alexnet_full, self).__init__()
         self.conv_block_1 = nn.Sequential(
-            nn.Conv2d(96, 11, 4, 2, bias=False),
+            nn.Conv2d(3, 96, 11, 4, 2, bias=False),
             nn.BatchNorm2d(96),
             nn.ReLU(inplace=True),
             nn.MaxPool2d(3, 2),
