@@ -141,10 +141,10 @@ def get_train_loader(args):
         mean = [116.151, 121.080, 132.342]
         std = [109.500, 111.855, 111.964]
         color_transfer = RGB2YCbCr()
-    elif args.view == 'temporal':        #COD 20/02/07
-        mean = []
-        std = []
-        color_transfer = 
+    elif args.view == 'temporal':                                                       #Use Lab for comparison 
+        mean = [(0 + 100) / 2, (-86.183 + 98.233) / 2, (-107.857 + 94.478) / 2]
+        std = [(100 - 0) / 2, (86.183 + 98.233) / 2, (107.857 + 94.478) / 2]
+        color_transfer = RGB2Lab()
     else:
         raise NotImplemented('view not implemented {}'.format(args.view))
     normalize = transforms.Normalize(mean=mean, std=std)
