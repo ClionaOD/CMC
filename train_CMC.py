@@ -211,7 +211,7 @@ def set_optimizer(args, model):
     return optimizer
 
 
-def train(epoch, train_loader, model, contrast, criterion_l, criterion_ab, optimizer, opt):
+def train(epoch, train_loader, model, contrast, criterion_l, criterion_ab, optimizer, opt, args):
     """
     one epoch training
     """
