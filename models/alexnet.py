@@ -42,7 +42,6 @@ class alexnet_temporal(nn.Module):
         self.alexnet = alexnet_full(feat_dim=feat_dim)
 
     def forward(self, x, layer=8):
-        #x = torch.Tensor(x)
         feat = self.alexnet(x, layer)
         return feat
 

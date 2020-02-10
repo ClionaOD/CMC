@@ -51,7 +51,11 @@ class twoImageFolderInstance(datasets.ImageFolder):
         if self.target_transform is not None:
             target1 = self.target_transform(target1)
 
-        lagged_index = index + self.time_lag
+        try:
+            lagged_index = index + self.time_lag
+        except IndexError:
+            lagged_index = index - self.time_lag
+        
         path2, target2 = self.imgs[lagged_index]
         image2 = self.loader(path2)
         if self.transform is not None:
