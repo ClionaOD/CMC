@@ -211,7 +211,7 @@ def set_optimizer(args, model):
     return optimizer
 
 
-def train(epoch, train_loader, model, contrast, criterion_l, criterion_ab, optimizer, opt, args):
+def train(epoch, train_loader, model, contrast, criterion_l, criterion_ab, optimizer, opt):
     """
     one epoch training
     """
@@ -227,7 +227,7 @@ def train(epoch, train_loader, model, contrast, criterion_l, criterion_ab, optim
     ab_prob_meter = AverageMeter()
 
     end = time.time()
-    if not args.view == 'temporal':
+    if not opt.view == 'temporal':
         for idx, (inputs, _, index) in enumerate(train_loader):
             data_time.update(time.time() - end)
 
