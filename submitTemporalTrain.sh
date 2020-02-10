@@ -11,4 +11,4 @@ python /home/ubuntu/CMC/train_CMC.py --data_folder /movie-associations/ \
  --tb_path /movie-associations/saves/tb-saves/temporal \
  --view temporal \
  --time_lag 60 \
- --epochs 1 \
+ --epochs 1 
