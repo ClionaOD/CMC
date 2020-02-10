@@ -39,15 +39,12 @@ class alexnet(nn.Module):
 class alexnet_temporal(nn.Module):
     def __init__(self, feat_dim=128):
         super(alexnet_temporal, self).__init__()
-        self.alexnet_one = alexnet_full(feat_dim=feat_dim)
-        self.alexnet_two = alexnet_full(feat_dim=feat_dim)
+        self.alexnet = alexnet_full(feat_dim=feat_dim)
 
-    def forward(self, x, y, layer=8):
+    def forward(self, x, layer=8):
         x = torch.Tensor(x)
-        y = torch.Tensor(y)
-        feat_one = self.alexnet_one(x, layer)
-        feat_two = self.alexnet_two(y, layer)
-        return feat_one, feat_two
+        feat = self.alexnet(x, layer)
+        return feat
 
 class alexnet_half(nn.Module):
     def __init__(self, in_channel=1, feat_dim=128):

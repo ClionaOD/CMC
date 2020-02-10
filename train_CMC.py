@@ -299,7 +299,8 @@ def train(epoch, train_loader, model, contrast, criterion_l, criterion_ab, optim
                 inputs2 = inputs2.cuda()
 
             # ===================forward=====================
-            feat_one, feat_two = model(inputs1, inputs2)
+            feat_one = model(inputs1)
+            feat_two = model(inputs2)
             out_one, out_two = contrast(feat_one, feat_two, index)
 
             one_loss = criterion_l(out_one) #l is naming convention only
