@@ -188,7 +188,7 @@ def set_model(args, n_data):
     else:
         raise ValueError('model not supported yet {}'.format(args.model))
 
-    contrast = NCEAverage(args.feat_dim, n_data, args.nce_k, args.nce_t, args.nce_m, args.softmax) #NCEAverage to be checked, criterion is ok (naming of l ab is kept for simplicity only) 20/02/10
+    contrast = NCEAverage(args.feat_dim, n_data, args.nce_k, args.nce_t, args.nce_m, args.softmax) 
     criterion_l = NCESoftmaxLoss() if args.softmax else NCECriterion(n_data)
     criterion_ab = NCESoftmaxLoss() if args.softmax else NCECriterion(n_data)
 

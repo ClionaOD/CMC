@@ -43,6 +43,9 @@ class twoImageFolderInstance(datasets.ImageFolder):
         super(twoImageFolderInstance, self).__init__(root, transform, target_transform)
         self.time_lag = time_lag
     
+    def __len__(self):
+        return len(self.imgs)-self.time_lag
+
     def __getitem__(self, index):
         path1, target1 = self.imgs[index]
         image1 = self.loader(path1)
@@ -51,13 +54,9 @@ class twoImageFolderInstance(datasets.ImageFolder):
         if self.target_transform is not None:
             target1 = self.target_transform(target1)
 
-        try:
-            lagged_index = index + self.time_lag
-            path2, target2 = self.imgs[lagged_index]
-        except IndexError:
-            lagged_index = index - self.time_lag
-            path2, target2 = self.imgs[lagged_index]
         
+        lagged_index = index + self.time_lag
+        path2, target2 = self.imgs[lagged_index]
         image2 = self.loader(path2)
         if self.transform is not None:
             img2 = self.transform(image2)
