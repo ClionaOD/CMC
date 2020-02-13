@@ -280,6 +280,8 @@ def train(epoch, train_loader, model, classifier, criterion, optimizer, opt):
                 data_time=data_time, loss=losses, top1=top1, top5=top5))
             sys.stdout.flush()
 
+    return top1.avg, top5.avg, losses.avg
+
 """
     else:
         for idx, [(input1, target, index), (input2, _, lagged_index)] in enumerate(train_loader):
@@ -329,7 +331,7 @@ def train(epoch, train_loader, model, classifier, criterion, optimizer, opt):
                 sys.stdout.flush()
 """
     
-    return top1.avg, top5.avg, losses.avg
+    
 
 
 def validate(val_loader, model, classifier, criterion, opt):
