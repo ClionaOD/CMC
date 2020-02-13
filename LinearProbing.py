@@ -15,6 +15,7 @@ import tensorboard_logger as tb_logger
 
 from torchvision import transforms, datasets
 from dataset import RGB2Lab, RGB2YCbCr
+from dataset import twoImageFolderInstance
 from util import adjust_learning_rate, AverageMeter, accuracy
 
 from models.alexnet import MyAlexNetCMC
