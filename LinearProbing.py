@@ -15,7 +15,6 @@ import tensorboard_logger as tb_logger
 
 from torchvision import transforms, datasets
 from dataset import RGB2Lab, RGB2YCbCr
-from dataset import twoImageFolderInstance
 from util import adjust_learning_rate, AverageMeter, accuracy
 
 from models.alexnet import MyAlexNetCMC
@@ -76,9 +75,6 @@ def parse_option():
 
     # GPU setting
     parser.add_argument('--gpu', default=None, type=int, help='GPU id to use.')
-
-    #number of 1 sec to lag by
-    parser.add_argument('--time_lag', type=int, default=100, help='number of 1 second frames to lag by')
 
     opt = parser.parse_args()
 
@@ -144,17 +140,9 @@ def get_train_val_loader(args):
         normalize,
     ])
     
-    #if not args.view == 'temporal':
     train_dataset = datasets.ImageFolder(
         train_folder,
         transform=train_transform)
-    """
-    else:
-        train_dataset = twoImageFolderInstance(
-            train_folder, 
-            time_lag=args.time_lag, 
-            transform=train_transform) 
-    """
     
     val_dataset = datasets.ImageFolder(
         val_folder,
@@ -284,58 +272,7 @@ def train(epoch, train_loader, model, classifier, criterion, optimizer, opt):
             sys.stdout.flush()
 
     return top1.avg, top5.avg, losses.avg
-
-"""
-    else:
-        for idx, [(input1, target, index), (input2, _, lagged_index)] in enumerate(train_loader):
-            # measure data loading time
-            data_time.update(time.time() - end)
-
-            input1 = input1.float()
-            input2 = input2.float()
-            if opt.gpu is not None:
-                input1 = input1.cuda(opt.gpu, non_blocking=True)
-                input2 = input2.cuda(opt.gpu, non_blocking=True)
-            target = target.cuda(opt.gpu, non_blocking=True)
-
-            # ===================forward=====================
-            with torch.no_grad():
-                feat_one = model(input1, opt.layer)
-                feat_two = model(input2, opt.layer)
-                feat = torch.cat((feat_one.detach(), feat_two.detach()), dim=1)
-
-            output = classifier(feat)
-            loss = criterion(output, target)
-
-            acc1, acc5 = accuracy(output, target, topk=(1, 5))
-            losses.update(loss.item(), input.size(0))
-            top1.update(acc1[0], input.size(0))
-            top5.update(acc5[0], input.size(0))
-
-            # ===================backward=====================
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-
-            # ===================meters=====================
-            batch_time.update(time.time() - end)
-            end = time.time()
-
-            # print info
-            if idx % opt.print_freq == 0:
-                print('Epoch: [{0}][{1}/{2}]\t'
-                    'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
-                    'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'
-                    'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-                    'Acc@1 {top1.val:.3f} ({top1.avg:.3f})\t'
-                    'Acc@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
-                    epoch, idx, len(train_loader), batch_time=batch_time,
-                    data_time=data_time, loss=losses, top1=top1, top5=top5))
-                sys.stdout.flush()
-"""
     
-    
-
 
 def validate(val_loader, model, classifier, criterion, opt):
     """
