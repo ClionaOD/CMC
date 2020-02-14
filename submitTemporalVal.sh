@@ -9,5 +9,5 @@
 python /home/ubuntu/CMC/LinearProbing.py --data_folder /movie-associations/imagenet \
  --save_path /movie-associations/saves/val-saves/temporal-trained \
  --tb_path /movie-associations/saves/tb-saves/val/temporal-trained \
- --model_path /movie-associations/saves/model-saves/temporal/memory_nce_16384_alexnet_lr_0.03_decay_0.0001_bsz_128_view_temporal/ckpt_epoch_70.pth \
+ --model_path /movie-associations/saves/model-saves/temporal/memory_nce_16384_alexnet_lr_0.03_decay_0.0001_bsz_128_view_temporal/ckpt_epoch_110.pth \
  --view temporal 
