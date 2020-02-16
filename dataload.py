@@ -2,6 +2,7 @@ from dataset import twoImageFolderInstance
 import torch
 from torchvision import transforms, datasets
 from dataset import RGB2Lab
+from models.alexnet import TemporalAlexNetCMC
 
 data_folder = '/home/clionaodoherty/Desktop/fyp2020/stimuli/'
 color_transfer = RGB2Lab()
@@ -23,11 +24,15 @@ train_loader = torch.utils.data.DataLoader(
 n_data = len(train_dataset)
 print('number of samples: {}'.format(n_data))
 
+model = TemporalAlexNetCMC()
 for idx, [(inputs1, _, index), (inputs2, _, lagged_index)] in enumerate(train_loader):
+    
 
     bsz = inputs1.size(0)
     inputs1 = inputs1.float()
     inputs2 = inputs2.float()
+    feat1 = model(inputs1)
+    feat2 = model(inputs2)
     if torch.cuda.is_available():
         index = index.cuda(non_blocking=True)
         inputs = inputs.cuda()
