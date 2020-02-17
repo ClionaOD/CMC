@@ -144,24 +144,14 @@ def get_train_val_loader(args):
         normalize,
     ])
     
-    if not args.view == 'temporal':
-        train_dataset = datasets.ImageFolder(
-            train_folder,
-            transform=train_transform)
-        
-        val_dataset = datasets.ImageFolder(
-            val_folder,
-            transform=train_transform)
-    else:
-        train_dataset = twoImageFolderInstance(
-            train_folder,
-            time_lag = args.time_lag,
-            transform=train_transform)
-        
-        val_dataset = twoImageFolderInstance(
-            val_folder,
-            time_lag = args.time_lag,
-            transform=train_transform) 
+    
+    train_dataset = datasets.ImageFolder(
+        train_folder,
+        transform=train_transform)
+    
+    val_dataset = datasets.ImageFolder(
+        val_folder,
+        transform=train_transform)
 
     print('number of train: {}'.format(len(train_dataset)))
     print('number of val: {}'.format(len(val_dataset)))
@@ -239,95 +229,52 @@ def train(epoch, train_loader, model, classifier, criterion, optimizer, opt):
 
     end = time.time()
 
-    if not opt.view == 'temporal':
-        for idx, (input, target) in enumerate(train_loader):
-            # measure data loading time
-            data_time.update(time.time() - end)
+    
+    for idx, (input, target) in enumerate(train_loader):
+        # measure data loading time
+        data_time.update(time.time() - end)
 
-            input = input.float()
-            if opt.gpu is not None:
-                input = input.cuda(opt.gpu, non_blocking=True)
-            target = target.cuda(opt.gpu, non_blocking=True)
+        input = input.float()
+        if opt.gpu is not None:
+            input = input.cuda(opt.gpu, non_blocking=True)
+        target = target.cuda(opt.gpu, non_blocking=True)
 
-            # ===================forward=====================
-            with torch.no_grad():
+        # ===================forward=====================
+        with torch.no_grad():
+            if not opt.view == 'temporal':
                 feat_l, feat_ab = model(input, opt.layer)  
                 feat = torch.cat((feat_l.detach(), feat_ab.detach()), dim=1)
+            else:
+                feat = model(input,opt.layer)
 
-            output = classifier(feat)
-            loss = criterion(output, target)
+        output = classifier(feat)
+        loss = criterion(output, target)
 
-            acc1, acc5 = accuracy(output, target, topk=(1, 5))
-            losses.update(loss.item(), input.size(0))
-            top1.update(acc1[0], input.size(0))
-            top5.update(acc5[0], input.size(0))
+        acc1, acc5 = accuracy(output, target, topk=(1, 5))
+        losses.update(loss.item(), input.size(0))
+        top1.update(acc1[0], input.size(0))
+        top5.update(acc5[0], input.size(0))
 
-            # ===================backward=====================
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
+        # ===================backward=====================
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
 
-            # ===================meters=====================
-            batch_time.update(time.time() - end)
-            end = time.time()
+        # ===================meters=====================
+        batch_time.update(time.time() - end)
+        end = time.time()
 
-            # print info
-            if idx % opt.print_freq == 0:
-                print('Epoch: [{0}][{1}/{2}]\t'
-                    'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
-                    'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'
-                    'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-                    'Acc@1 {top1.val:.3f} ({top1.avg:.3f})\t'
-                    'Acc@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
-                    epoch, idx, len(train_loader), batch_time=batch_time,
-                    data_time=data_time, loss=losses, top1=top1, top5=top5))
-                sys.stdout.flush()
-    else:
-        for idx, [(inputs1, target, index), (inputs2, _, lagged_index)] in enumerate(train_loader):
-            # measure data loading time
-            data_time.update(time.time() - end)
-
-            inputs1 = inputs1.float()
-            inputs2 = inputs2.float()
-            if opt.gpu is not None:
-                inputs1 = inputs2.cuda(opt.gpu, non_blocking=True)
-            target = target.cuda(opt.gpu, non_blocking=True)
-
-            # ===================forward=====================
-            with torch.no_grad():
-                feat_one = model(inputs1, opt.layer)
-                feat_two = model(inputs2, opt.layer)     
-                feat = torch.cat((feat_one.detach(), feat_two.detach()), dim=1)
-                print('feat_one: {} \n feat_two: {} \n feat (cat): {}'.format(feat_one.size(), feat_two.size(), feat.size()))
-                
-            output = classifier(feat)
-            loss = criterion(output, target)
-
-            acc1, acc5 = accuracy(output, target, topk=(1, 5))
-            losses.update(loss.item(), inputs1.size(0))
-            top1.update(acc1[0], inputs1.size(0))
-            top5.update(acc5[0], inputs1.size(0))
-
-            # ===================backward=====================
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-
-            # ===================meters=====================
-            batch_time.update(time.time() - end)
-            end = time.time()
-
-            # print info
-            if idx % opt.print_freq == 0:
-                print('Epoch: [{0}][{1}/{2}]\t'
-                    'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
-                    'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'
-                    'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-                    'Acc@1 {top1.val:.3f} ({top1.avg:.3f})\t'
-                    'Acc@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
-                    epoch, idx, len(train_loader), batch_time=batch_time,
-                    data_time=data_time, loss=losses, top1=top1, top5=top5))
-                sys.stdout.flush()
+        # print info
+        if idx % opt.print_freq == 0:
+            print('Epoch: [{0}][{1}/{2}]\t'
+                'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
+                'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'
+                'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
+                'Acc@1 {top1.val:.3f} ({top1.avg:.3f})\t'
+                'Acc@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
+                epoch, idx, len(train_loader), batch_time=batch_time,
+                data_time=data_time, loss=losses, top1=top1, top5=top5))
+            sys.stdout.flush()
     
     return top1.avg, top5.avg, losses.avg
     
@@ -347,80 +294,43 @@ def validate(val_loader, model, classifier, criterion, opt):
 
     with torch.no_grad():
         end = time.time()
-        if not opt.view == 'temporal':
-            for idx, (input, target) in enumerate(val_loader):
+        for idx, (input, target) in enumerate(val_loader):
 
-                input = input.float()
-                if opt.gpu is not None:
-                    input = input.cuda(opt.gpu, non_blocking=True)
-                target = target.cuda(opt.gpu, non_blocking=True)
+            input = input.float()
+            if opt.gpu is not None:
+                input = input.cuda(opt.gpu, non_blocking=True)
+            target = target.cuda(opt.gpu, non_blocking=True)
 
-                # compute output
+            # compute output
+            if not opt.view == 'temporal':
                 feat_l, feat_ab = model(input, opt.layer)
                 feat = torch.cat((feat_l.detach(), feat_ab.detach()), dim=1)
-                output = classifier(feat)
-                loss = criterion(output, target)
+            else:
+                feat = model(input, opt.layer)
+            output = classifier(feat)
+            loss = criterion(output, target)
 
-                # measure accuracy and record loss
-                acc1, acc5 = accuracy(output, target, topk=(1, 5))
-                losses.update(loss.item(), input.size(0))
-                top1.update(acc1[0], input.size(0))
-                top5.update(acc5[0], input.size(0))
+            # measure accuracy and record loss
+            acc1, acc5 = accuracy(output, target, topk=(1, 5))
+            losses.update(loss.item(), input.size(0))
+            top1.update(acc1[0], input.size(0))
+            top5.update(acc5[0], input.size(0))
 
-                # measure elapsed time
-                batch_time.update(time.time() - end)
-                end = time.time()
+            # measure elapsed time
+            batch_time.update(time.time() - end)
+            end = time.time()
 
-                if idx % opt.print_freq == 0:
-                    print('Test: [{0}/{1}]\t'
-                        'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
-                        'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-                        'Acc@1 {top1.val:.3f} ({top1.avg:.3f})\t'
-                        'Acc@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
-                        idx, len(val_loader), batch_time=batch_time, loss=losses,
-                        top1=top1, top5=top5))
+            if idx % opt.print_freq == 0:
+                print('Test: [{0}/{1}]\t'
+                    'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
+                    'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
+                    'Acc@1 {top1.val:.3f} ({top1.avg:.3f})\t'
+                    'Acc@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
+                    idx, len(val_loader), batch_time=batch_time, loss=losses,
+                    top1=top1, top5=top5))
 
-            print(' * Acc@1 {top1.avg:.3f} Acc@5 {top5.avg:.3f}'
-                .format(top1=top1, top5=top5))
-
-        else:
-            for idx, [(inputs1, target, index), (inputs2, _, lagged_index)] in enumerate(val_loader):
-                inputs1 = inputs1.float()
-                inputs2 = inputs2.float
-                if opt.gpu is not None:
-                    inputs1 = inputs1.cuda(opt.gpu, non_blocking=True)
-                    inputs2 = inputs2.cuda(opt.gpu, non_blocking=True)
-                target = target.cuda(opt.gpu, non_blocking=True)
-
-                # compute output
-                feat_one = model(inputs1, opt.layer)
-                feat_two = model(inputs2, opt.layer)     
-                feat = torch.cat((feat_one.detach(), feat_two.detach()), dim=1)
-                output = classifier(feat)
-                loss = criterion(output, target)
-
-                # measure accuracy and record loss
-                acc1, acc5 = accuracy(output, target, topk=(1, 5))
-                losses.update(loss.item(), inputs1.size(0))
-                top1.update(acc1[0], inputs1.size(0))
-                top5.update(acc5[0], inputs1.size(0))
-
-                # measure elapsed time
-                batch_time.update(time.time() - end)
-                end = time.time()
-
-                if idx % opt.print_freq == 0:
-                    print('Test: [{0}/{1}]\t'
-                        'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
-                        'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-                        'Acc@1 {top1.val:.3f} ({top1.avg:.3f})\t'
-                        'Acc@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
-                        idx, len(val_loader), batch_time=batch_time, loss=losses,
-                        top1=top1, top5=top5))
-
-            print(' * Acc@1 {top1.avg:.3f} Acc@5 {top5.avg:.3f}'
-                .format(top1=top1, top5=top5))
-
+        print(' * Acc@1 {top1.avg:.3f} Acc@5 {top5.avg:.3f}'
+            .format(top1=top1, top5=top5))
 
     return top1.avg, top5.avg, losses.avg
 
