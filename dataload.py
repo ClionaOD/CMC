@@ -3,6 +3,7 @@ import torch
 from torchvision import transforms, datasets
 from dataset import RGB2Lab
 from models.alexnet import TemporalAlexNetCMC
+from models.LinearModel import LinearClassifierAlexNet
 
 data_folder = '/home/clionaodoherty/Desktop/fyp2020/stimuli/'
 color_transfer = RGB2Lab()
@@ -25,6 +26,7 @@ n_data = len(train_dataset)
 print('number of samples: {}'.format(n_data))
 
 model = TemporalAlexNetCMC()
+classifier = LinearClassifierAlexNet(layer=5, n_label=n_data, pool_type='max')
 for idx, [(inputs1, _, index), (inputs2, _, lagged_index)] in enumerate(train_loader):
     
 

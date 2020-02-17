@@ -298,6 +298,7 @@ def train(epoch, train_loader, model, classifier, criterion, optimizer, opt):
                 feat_one = model(inputs1, opt.layer)
                 feat_two = model(inputs2, opt.layer)     
                 feat = torch.cat((feat_one.detach(), feat_two.detach()), dim=1)
+                print('feat_one: {} \n feat_two: {} \n feat (cat): {}'.format(feat_one.size(), feat_two.size(), feat.size()))
                 
             output = classifier(feat)
             loss = criterion(output, target)
