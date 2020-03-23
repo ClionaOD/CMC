@@ -10,7 +10,7 @@
 #   to that of CMC on imagenet. In my first attempt, it had not fully converged
 #   and the lr had not decayed. Previous Top-1 was 32.38 and Top-5 54.28.
 
-python /home/clionaodoherty/CMC/train_CMC.py \
+python3 /home/clionaodoherty/CMC/train_CMC.py \
     --data_folder /data/movie-associations \
     --model_path /home/clionaodoherty/movie-associations/saves/Lab/movie-pretrain \
     --tb_path /home/clionaodoherty/CMC/tensorboard \
