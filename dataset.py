@@ -5,6 +5,7 @@ from skimage import color
 
 import torch
 import torchvision.datasets as datasets
+from torchvision import transforms
 
 
 class ImageFolderInstance(datasets.ImageFolder):
@@ -151,3 +152,14 @@ class RGB2CIERGB(object):
         img = np.asarray(img, np.uint8)
         img = color.rgb2rgbcie(img)
         return img
+    
+def get_color_distortion(s=1.0):
+    """Random Color Distortion as per Chen et al. 2020
+        s is the strength of color distortion"""
+    color_jitter = transforms.ColorJitter(0.8*s, 0.8*s, 0.8*s, 0.2*s)
+    rnd_color_jitter = transforms.RandomApply([color_jitter], p=0.8)
+    rnd_gray = transforms.RandomGrayscale(p=0.2)
+    color_distort = transforms.Compose([
+        rnd_color_jitter,
+        rnd_gray])
+    return color_distort

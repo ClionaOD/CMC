@@ -1,4 +1,5 @@
 from dataset import twoImageFolderInstance
+from dataset import get_color_distortion
 import torch
 from torchvision import transforms, datasets
 from dataset import RGB2Lab
@@ -6,7 +7,8 @@ from models.alexnet import TemporalAlexNetCMC
 from models.LinearModel import LinearClassifierAlexNet
 
 data_folder = '/home/clionaodoherty/Desktop/fyp2020/stimuli/'
-color_transfer = RGB2Lab()
+
+color_transfer = get_color_distortion()
 
 train_transform = transforms.Compose([transforms.RandomResizedCrop(224, 
         scale=(0.2, 1.)),
