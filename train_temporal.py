@@ -12,10 +12,10 @@ import torch.backends.cudnn as cudnn
 import argparse
 import socket
 
-import tensorboard_logger as tb_logger
+import tensorboard_logger as tb_loggerS
 
 from torchlars import LARS      #Use You et al. '17 LARS optimizer for large batch training
-import pytorch_warmup as warmup
+from warmup_scheduler import GradualWarmupScheduler         #Linear warmup for 10 epochs then cosine decay schedule
 
 from torchvision import transforms, datasets
 from dataset import RGB2Lab, RGB2YCbCr, get_color_distortion
@@ -193,13 +193,14 @@ def set_model(args, n_data):
 
 def set_optimizer(args, model):
     # return optimizer
-    base_optimizer = torch.optim.Adam(model.parameters(),
+    base_optimizer = torch.optim.SGD(model.parameters(),
                                 lr=args.learning_rate,
-                                weight_decay=args.weight_decay)
-    optimizer = LARS(optimizer=base_optimizer)
+                                weight_decay=args.weight_decay,
+                                momentum=args.momentum)
+    #optimizer = LARS(optimizer=base_optimizer)
     return optimizer
 
-def train(epoch, train_loader, model, contrast, criterion_one, criterion_two, optimizer, opt): #, lr_scheduler, warmup_scheduler):
+def train(epoch, train_loader, model, contrast, criterion_one, criterion_two, optimizer, opt):
     """
     one epoch training
     """
@@ -243,8 +244,6 @@ def train(epoch, train_loader, model, contrast, criterion_one, criterion_two, op
         loss = one_loss + two_loss
 
         # ===================backward=====================
-        #lr_scheduler.step(epoch-1)
-        #warmup_scheduler.dampen()
         optimizer.zero_grad()
         if opt.amp:
             with amp.scale_loss(loss, optimizer) as scaled_loss:
@@ -321,19 +320,19 @@ def main():
     # tensorboard
     logger = tb_logger.Logger(logdir=args.tb_folder, flush_secs=2)
 
-    #lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer,T_max=10)
-    #warmup_scheduler = warmup.UntunedLinearWarmup(optimizer)
-    #warmup_scheduler.last_step = -1 # initialize the step counter
+    scheduler_cosine = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, args.epochs)
+    scheduler_warmup = GradualWarmupScheduler(optimizer, multiplier=1, total_epoch=10, after_scheduler=scheduler_cosine)
 
     # routine
     for epoch in range(args.start_epoch, args.epochs + 1):
 
         #adjust_learning_rate(epoch, args, optimizer)
+        scheduler_warmup.step()
         print("==> training...")
 
         time1 = time.time()
         one_loss, one_prob, two_loss, two_prob = train(epoch, train_loader, model, contrast, criterion_one, criterion_two,
-                                                 optimizer, args)#, lr_scheduler, warmup_scheduler)
+                                                 optimizer, args)
         time2 = time.time()
         print('epoch {}, total time {:.2f}'.format(epoch, time2 - time1))
 
