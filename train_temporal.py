@@ -243,8 +243,8 @@ def train(epoch, train_loader, model, contrast, criterion_one, criterion_two, op
         loss = one_loss + two_loss
 
         # ===================backward=====================
-        lr_scheduler.step(epoch-1)
-        warmup_scheduler.dampen()
+        #lr_scheduler.step(epoch-1)
+        #warmup_scheduler.dampen()
         optimizer.zero_grad()
         if opt.amp:
             with amp.scale_loss(loss, optimizer) as scaled_loss:
@@ -321,9 +321,9 @@ def main():
     # tensorboard
     logger = tb_logger.Logger(logdir=args.tb_folder, flush_secs=2)
 
-    lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer,T_max=10)
-    warmup_scheduler = warmup.UntunedLinearWarmup(optimizer)
-    warmup_scheduler.last_step = -1 # initialize the step counter
+    #lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer,T_max=10)
+    #warmup_scheduler = warmup.UntunedLinearWarmup(optimizer)
+    #warmup_scheduler.last_step = -1 # initialize the step counter
 
     # routine
     for epoch in range(args.start_epoch, args.epochs + 1):
