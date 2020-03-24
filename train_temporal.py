@@ -199,7 +199,7 @@ def set_optimizer(args, model):
     optimizer = LARS(optimizer=base_optimizer)
     return optimizer
 
-def train(epoch, train_loader, model, contrast, criterion_one, criterion_two, optimizer, opt, lr_scheduler, warmup_scheduler):
+def train(epoch, train_loader, model, contrast, criterion_one, criterion_two, optimizer, opt)#, lr_scheduler, warmup_scheduler):
     """
     one epoch training
     """
