@@ -195,7 +195,7 @@ def set_optimizer(args, model):
     # return optimizer
     base_optimizer = torch.optim.Adam(model.parameters(),
                                 lr=args.learning_rate,
-                                momentum=args.momentum)
+                                weight_decay=args.weight_decay)
     optimizer = LARS(optimizer=base_optimizer)
     return optimizer
 
