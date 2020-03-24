@@ -12,7 +12,7 @@ import torch.backends.cudnn as cudnn
 import argparse
 import socket
 
-import tensorboard_logger as tb_loggerS
+import tensorboard_logger as tb_logger
 
 from torchlars import LARS      #Use You et al. '17 LARS optimizer for large batch training
 from warmup_scheduler import GradualWarmupScheduler         #Linear warmup for 10 epochs then cosine decay schedule
