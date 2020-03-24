@@ -23,7 +23,7 @@ from models.alexnet import TemporalAlexNetCMC
 from models.resnet import MyResNetsCMC
 from models.LinearModel import LinearClassifierAlexNet, LinearClassifierResNet
 
-import spawn
+#import spawn
 
 
 def parse_option():
