@@ -193,8 +193,9 @@ def set_model(args, n_data):
 
 def set_optimizer(args, model):
     # return optimizer
-    base_optimizer = torch.optim.SGD(model.parameters(),
-                                lr=args.learning_rate)
+    base_optimizer = torch.optim.Adam(model.parameters(),
+                                lr=args.learning_rate,
+                                momentum=args.momentum)
     optimizer = LARS(optimizer=base_optimizer)
     return optimizer
 
