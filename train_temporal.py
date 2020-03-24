@@ -15,7 +15,7 @@ import socket
 import tensorboard_logger as tb_logger
 
 from torchlars import LARS      #Use You et al. '17 LARS optimizer for large batch training
-import pytorch_warmup as warmup
+import pytorch_warmup as 
 
 from torchvision import transforms, datasets
 from dataset import RGB2Lab, RGB2YCbCr, get_color_distortion
@@ -333,7 +333,7 @@ def main():
 
         time1 = time.time()
         one_loss, one_prob, two_loss, two_prob = train(epoch, train_loader, model, contrast, criterion_one, criterion_two,
-                                                 optimizer, args, lr_scheduler, warmup_scheduler)
+                                                 optimizer, args)#, lr_scheduler, warmup_scheduler)
         time2 = time.time()
         print('epoch {}, total time {:.2f}'.format(epoch, time2 - time1))
 
