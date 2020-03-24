@@ -15,7 +15,7 @@ import socket
 import tensorboard_logger as tb_logger
 
 from torchlars import LARS      #Use You et al. '17 LARS optimizer for large batch training
-import pytorch_warmup as 
+import pytorch_warmup as warmup
 
 from torchvision import transforms, datasets
 from dataset import RGB2Lab, RGB2YCbCr, get_color_distortion
