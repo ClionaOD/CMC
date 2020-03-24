@@ -193,7 +193,7 @@ def set_model(args, n_data):
 
 def set_optimizer(args, model):
     # return optimizer
-    base_optimizer = torch.optim.SGD(model.parameters(),
+    optimizer = torch.optim.SGD(model.parameters(),
                                 lr=args.learning_rate,
                                 weight_decay=args.weight_decay,
                                 momentum=args.momentum)
