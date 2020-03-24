@@ -14,22 +14,20 @@ import socket
 
 import tensorboard_logger as tb_logger
 
-from torchlars import LARS      #Use You et al. '17 LARS optimizer for large batch training
+from optim.lars import LARS                                 #Use You et al. '17 LARS optimizer for large batch training
 from warmup_scheduler import GradualWarmupScheduler         #Linear warmup for 10 epochs then cosine decay schedule
 
 from torchvision import transforms, datasets
-from dataset import RGB2Lab, RGB2YCbCr, get_color_distortion
-from util import adjust_learning_rate, AverageMeter
+from dataset import get_color_distortion
+from util import AverageMeter
 
-from models.alexnet import MyAlexNetCMC
-from models.alexnet import TemporalAlexNetCMC #COD 20/02/07
+from models.alexnet import TemporalAlexNetCMC 
 from models.resnet import MyResNetsCMC
 from NCE.NCEAverage import NCEAverage
 from NCE.NCECriterion import NCECriterion
 from NCE.NCECriterion import NCESoftmaxLoss
 
-from dataset import ImageFolderInstance
-from dataset import twoImageFolderInstance #COD 20/02/07
+from dataset import twoImageFolderInstance 
 
 try:
     from apex import amp, optimizers
@@ -47,14 +45,12 @@ def parse_option():
     parser.add_argument('--print_freq', type=int, default=10, help='print frequency')
     parser.add_argument('--tb_freq', type=int, default=500, help='tb frequency')
     parser.add_argument('--save_freq', type=int, default=1, help='save frequency')
-    parser.add_argument('--batch_size', type=int, default=1024, help='batch_size')      #Use large bsz based on Chen et al. 2020
+    parser.add_argument('--batch_size', type=int, default=156, help='batch_size')                   #Use bsz based on Chen et al. 2020 Table C.1
     parser.add_argument('--num_workers', type=int, default=18, help='num of workers to use')
-    parser.add_argument('--epochs', type=int, default=200, help='number of training epochs')
+    parser.add_argument('--epochs', type=int, default=280, help='number of training epochs')
 
     # optimization
-    parser.add_argument('--learning_rate', type=float, default=1.2, help='learning rate')      #lr = 0.3 * bsz/256 
-    parser.add_argument('--lr_decay_epochs', type=str, default='100,140,180', help='where to decay lr, can be a list')
-    parser.add_argument('--lr_decay_rate', type=float, default=0.1, help='decay rate for learning rate')
+    parser.add_argument('--learning_rate', type=float, default=0.18, help='learning rate')          #lr = 0.3 * bsz/256 
     parser.add_argument('--beta1', type=float, default=0.5, help='beta1 for adam')
     parser.add_argument('--beta2', type=float, default=0.999, help='beta2 for Adam')
     parser.add_argument('--weight_decay', type=float, default=10e-6, help='weight decay')
@@ -104,11 +100,6 @@ def parse_option():
     if opt.dataset == 'imagenet':
         if 'alexnet' not in opt.model:
             opt.crop_low = 0.08
-
-    iterations = opt.lr_decay_epochs.split(',')
-    opt.lr_decay_epochs = list([])
-    for it in iterations:
-        opt.lr_decay_epochs.append(int(it))
 
     opt.method = 'softmax' if opt.softmax else 'nce'
     opt.model_name = 'memory_{}_{}_{}_lr_{}_decay_{}_bsz_{}_sec_{}'.format(opt.method, opt.nce_k, opt.model, opt.learning_rate,
@@ -193,11 +184,11 @@ def set_model(args, n_data):
 
 def set_optimizer(args, model):
     # return optimizer
-    optimizer = torch.optim.SGD(model.parameters(),
+    optimizer = torch.optim.LARS(model.parameters(),
                                 lr=args.learning_rate,
                                 weight_decay=args.weight_decay,
                                 momentum=args.momentum)
-    #optimizer = LARS(optimizer=base_optimizer)
+
     return optimizer
 
 def train(epoch, train_loader, model, contrast, criterion_one, criterion_two, optimizer, opt):
@@ -326,7 +317,6 @@ def main():
     # routine
     for epoch in range(args.start_epoch, args.epochs + 1):
 
-        #adjust_learning_rate(epoch, args, optimizer)
         scheduler_warmup.step()
         print("==> training...")
 
