@@ -184,7 +184,7 @@ def set_model(args, n_data):
 
 def set_optimizer(args, model):
     # return optimizer
-    optimizer = torch.optim.LARS(model.parameters(),
+    optimizer = LARS(model.parameters(),
                                 lr=args.learning_rate,
                                 weight_decay=args.weight_decay,
                                 momentum=args.momentum)
