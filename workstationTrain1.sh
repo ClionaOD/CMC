@@ -3,7 +3,6 @@
 #SBATCH -J train_CMC_1
 #SBATCH --output=/home/clionaodoherty/desktop/movie-associations/slurm%j.out
 #SBATCH --error=/home/clionaodoherty/desktop/movie-associations/slurm%j.err
-#SBATCH --gpus-per-task=1
 
 #This will submit the pretraining on movie dataset with Lab objective,
 #   resuming from epoch 71 in an attempt to get better acc performance comparable
