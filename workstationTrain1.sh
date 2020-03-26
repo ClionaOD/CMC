@@ -1,6 +1,5 @@
 #!/bin/bash
 #
-#SBATCH --cpus-per-task=32  
 #SBATCH -J train_CMC_1
 #SBATCH --output=/home/clionaodoherty/desktop/movie-associations/slurm%j.out
 #SBATCH --error=/home/clionaodoherty/desktop/movie-associations/slurm%j.err
