@@ -314,8 +314,8 @@ class ResNetV3(nn.Module):
         return feat_l, feat_ab
 
 class ResNetTemporal(nn.Module):
+    super(ResNetTemporal, self).__init__()
     def __init__(self):
-        super(ResNetTemporal, self).__init__()
         self.temporal_resnet = resnet50(width=2)
     
     def forward(self, x, layer=7):
