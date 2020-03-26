@@ -189,7 +189,7 @@ def set_model(args, n_data):
 
 def set_optimizer(args, model):
     # return optimizer
-    optimizer = LARS(model.parameters(),
+    optimizer = torch.optim.SGD(model.parameters(),
                                 lr=args.learning_rate,
                                 weight_decay=args.weight_decay,
                                 momentum=args.momentum)
@@ -316,16 +316,16 @@ def main():
     # tensorboard
     logger = tb_logger.Logger(logdir=args.tb_folder, flush_secs=2)
 
-    scheduler_cosine = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, args.epochs)
-    scheduler_warmup = GradualWarmupScheduler(optimizer, multiplier=1, total_epoch=10, after_scheduler=scheduler_cosine)
+    #scheduler_cosine = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, args.epochs)
+    #scheduler_warmup = GradualWarmupScheduler(optimizer, multiplier=1, total_epoch=10, after_scheduler=scheduler_cosine)
 
     # routine
     for epoch in range(args.start_epoch, args.epochs + 1):
 
-        if epoch >= 300:
-            adjust_learning_rate(epoch, args, optimizer)
-        else:
-            scheduler_warmup.step()
+        #if epoch >= 300:
+        adjust_learning_rate(epoch, args, optimizer)
+        #else:
+        #    scheduler_warmup.step()
         print("==> training...")
 
         time1 = time.time()
