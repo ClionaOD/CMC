@@ -1,5 +1,5 @@
 """
-Train CMC on temporal objective with AlexNet
+Train CMC on temporal objective with AlexNet or ResNet50
 This is mostly the same code as train_CMC.py
 """
 from __future__ import print_function
@@ -19,10 +19,10 @@ from warmup_scheduler import GradualWarmupScheduler         #Linear warmup for 1
 
 from torchvision import transforms, datasets
 from dataset import get_color_distortion
-from util import AverageMeter
+from util import AverageMeter, adjust_learning_rate
 
 from models.alexnet import TemporalAlexNetCMC 
-from models.resnet import MyResNetsCMC
+from models.resnet import TemporalResnetCMC
 from NCE.NCEAverage import NCEAverage
 from NCE.NCECriterion import NCECriterion
 from NCE.NCECriterion import NCESoftmaxLoss
@@ -45,13 +45,13 @@ def parse_option():
     parser.add_argument('--print_freq', type=int, default=10, help='print frequency')
     parser.add_argument('--tb_freq', type=int, default=500, help='tb frequency')
     parser.add_argument('--save_freq', type=int, default=1, help='save frequency')
-    parser.add_argument('--batch_size', type=int, default=156, help='batch_size')                   #Use bsz based on Chen et al. 2020 Table C.1
+    parser.add_argument('--batch_size', type=int, default=256, help='batch_size')                   #Use bsz based on Chen et al. 2020 Table C.1
     parser.add_argument('--num_workers', type=int, default=18, help='num of workers to use')
-    parser.add_argument('--epochs', type=int, default=280, help='number of training epochs')
+    parser.add_argument('--epochs', type=int, default=200, help='number of training epochs')
 
     # optimization
-    parser.add_argument('--learning_rate', type=float, default=0.18, help='learning rate')          #lr = 0.3 * bsz/256 
-    parser.add_argument('--lr_decay_epochs', type=str, default='120,160,200', help='where to decay lr, can be a list')
+    parser.add_argument('--learning_rate', type=float, default=0.3, help='learning rate')          #lr = 0.3 * bsz/256 
+    parser.add_argument('--lr_decay_epochs', type=str, default='300,340,360', help='where to decay lr, can be a list')
     parser.add_argument('--lr_decay_rate', type=float, default=0.1, help='decay rate for learning rate')
     parser.add_argument('--beta1', type=float, default=0.5, help='beta1 for adam')
     parser.add_argument('--beta2', type=float, default=0.999, help='beta2 for Adam')
@@ -64,9 +64,7 @@ def parse_option():
 
     # model definition
     parser.add_argument('--model', type=str, default='alexnet', choices=['alexnet',
-                                                                         'resnet50v1', 'resnet101v1', 'resnet18v1',
-                                                                         'resnet50v2', 'resnet101v2', 'resnet18v2',
-                                                                         'resnet50v3', 'resnet101v3', 'resnet18v3'])
+                                                                         'resnet50'])
     parser.add_argument('--softmax', action='store_true', help='using softmax contrastive loss rather than NCE')
     parser.add_argument('--nce_k', type=int, default=16384)
     parser.add_argument('--nce_t', type=float, default=0.07)
@@ -102,6 +100,11 @@ def parse_option():
     if opt.dataset == 'imagenet':
         if 'alexnet' not in opt.model:
             opt.crop_low = 0.08
+
+    iterations = opt.lr_decay_epochs.split(',')
+    opt.lr_decay_epochs = list([])
+    for it in iterations:
+        opt.lr_decay_epochs.append(int(it))
 
     opt.method = 'softmax' if opt.softmax else 'nce'
     opt.model_name = 'memory_{}_{}_{}_lr_{}_decay_{}_bsz_{}_sec_{}'.format(opt.method, opt.nce_k, opt.model, opt.learning_rate,
@@ -167,7 +170,7 @@ def set_model(args, n_data):
     if args.model == 'alexnet':
         model = TemporalAlexNetCMC(args.feat_dim)
     elif args.model.startswith('resnet'):
-        raise ValueError('resnet temporal not yet implemented')
+        model = TemporalResnetCMC()
     else:
         raise ValueError('model not supported yet {}'.format(args.model))
 
@@ -319,6 +322,9 @@ def main():
     # routine
     for epoch in range(args.start_epoch, args.epochs + 1):
 
+        #if epoch >= 300:
+        #    adjust_learning_rate(epoch, args, optimizer)
+        #else:
         scheduler_warmup.step()
         print("==> training...")
 

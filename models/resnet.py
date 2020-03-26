@@ -313,6 +313,22 @@ class ResNetV3(nn.Module):
         feat_ab = self.ab_to_l(ab, layer)
         return feat_l, feat_ab
 
+class ResNetTemporal(nn.Module):
+    def __init__(self):
+        super(ResNetTemporal, self).__init__()
+        self.temporal_resnet = resnet50(width=2)
+    
+    def forward(self, x, layer=7):
+        feat = self.temporal_resnet(x, layer)
+        return feat
+
+class TemporalResnetCMC(nn.Module):
+    def __init__(self):
+        self.encoder = ResNetTemporal()
+        self.encoder = nn.DataParallel(self.encoder)
+
+    def forward(self, x, layer=7):
+        return self.encoder(x,layer)
 
 class MyResNetsCMC(nn.Module):
     def __init__(self, name='resnet50v1'):
