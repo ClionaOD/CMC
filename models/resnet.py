@@ -324,7 +324,7 @@ class ResNetTemporal(nn.Module):
 
 class TemporalResnetCMC(nn.Module):
     def __init__(self):
-        super(TemporalResnetCMC, self).__init()
+        super(TemporalResnetCMC, self).__init__()
         self.encoder = ResNetTemporal()
         self.encoder = nn.DataParallel(self.encoder)
 
