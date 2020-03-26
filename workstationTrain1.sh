@@ -4,6 +4,7 @@
 #SBATCH -J train_CMC_1
 #SBATCH --output=/movie-associations/logs/slurm-%j.out
 #SBATCH --error=/movie-associations/logs/slurm-%j.err
+#SBATCH --gpus-per-task=1
 
 #This will submit the pretraining on movie dataset with Lab objective,
 #   resuming from epoch 71 in an attempt to get better acc performance comparable
@@ -16,5 +17,5 @@ python3 /home/clionaodoherty/CMC/train_CMC.py \
     --tb_path /home/clionaodoherty/CMC/tensorboard \
     --resume /home/clionaodoherty/movie-associations/saves/Lab/movie-pretrain/ckpt_epoch_74.pth \
     --view Lab \
-    --epochs 200 \
-    --lr_decay_epochs '80, 120, 160' 
+    --epochs 1 \
+    -learning_rate 3 
