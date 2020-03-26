@@ -7,5 +7,4 @@ CUDA_VISIBLE_DEVICES=0,1 python3 /home/clionaodoherty/CMC/train_temporal.py \
     --model_path /home/clionaodoherty/movie-associations/saves/temporal/chen_updates/movie-pretrain \
     --tb_path /home/clionaodoherty/CMC/tensorboard \
     --batch_size 512 \
-    --learning_rate 0.6 \
-    --epochs 10
+    --learning_rate 0.6 

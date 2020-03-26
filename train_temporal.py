@@ -89,7 +89,7 @@ def parse_option():
     # data crop threshold
     parser.add_argument('--crop_low', type=float, default=0.2, help='low area in crop')
 
-    # range for timelag to test (COD 20/02/06)
+    # range for timelag to test
     parser.add_argument('--time_lag', type=int, default=60, help='number of 1 second frames to lag by')
 
     opt = parser.parse_args()
@@ -322,10 +322,10 @@ def main():
     # routine
     for epoch in range(args.start_epoch, args.epochs + 1):
 
-        #if epoch >= 300:
-        #    adjust_learning_rate(epoch, args, optimizer)
-        #else:
-        scheduler_warmup.step()
+        if epoch >= 300:
+            adjust_learning_rate(epoch, args, optimizer)
+        else:
+            scheduler_warmup.step()
         print("==> training...")
 
         time1 = time.time()
