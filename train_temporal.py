@@ -45,12 +45,12 @@ def parse_option():
     parser.add_argument('--print_freq', type=int, default=10, help='print frequency')
     parser.add_argument('--tb_freq', type=int, default=500, help='tb frequency')
     parser.add_argument('--save_freq', type=int, default=1, help='save frequency')
-    parser.add_argument('--batch_size', type=int, default=192, help='batch_size')                   #Use bsz based on Chen et al. 2020 Table C.1
+    parser.add_argument('--batch_size', type=int, default=160, help='batch_size')                   #Use bsz based on Chen et al. 2020 Table C.1
     parser.add_argument('--num_workers', type=int, default=18, help='num of workers to use')
     parser.add_argument('--epochs', type=int, default=200, help='number of training epochs')
 
     # optimization
-    parser.add_argument('--learning_rate', type=float, default=0.22, help='learning rate')          #lr = 0.3 * bsz/256 
+    parser.add_argument('--learning_rate', type=float, default=0.19, help='learning rate')          #lr = 0.3 * bsz/256 
     parser.add_argument('--lr_decay_epochs', type=str, default='300,340,360', help='where to decay lr, can be a list')
     parser.add_argument('--lr_decay_rate', type=float, default=0.1, help='decay rate for learning rate')
     parser.add_argument('--beta1', type=float, default=0.5, help='beta1 for adam')
