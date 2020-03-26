@@ -2,8 +2,8 @@
 #
 #SBATCH --cpus-per-task=32  
 #SBATCH -J train_CMC_1
-#SBATCH --output=/movie-associations/logs/slurm-%j.out
-#SBATCH --error=/movie-associations/logs/slurm-%j.err
+#SBATCH --output=/home/clionaodoherty/desktop/movie-associations/slurm%j.out
+#SBATCH --error=/home/clionaodoherty/desktop/movie-associations/slurm%j.err
 #SBATCH --gpus-per-task=1
 
 #This will submit the pretraining on movie dataset with Lab objective,
