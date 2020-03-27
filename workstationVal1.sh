@@ -9,7 +9,7 @@
 
 #TODO: Add model_path after training finished.
 
-python3 /home/clionaodoherty/CMC/LinearProbing.py \
+CUDA_VISIBLE_DEVICES=0,1 python3 /home/clionaodoherty/CMC/LinearProbing.py \
     --data_folder /data/ILSVRC2012 \
     --save_path /home/clionaodoherty/movie-associations/saves/Lab/imgnet-val/fully_pretrained \
     --tb_path /home/clionaodoherty/CMC/tensorboard \
