@@ -16,4 +16,4 @@ CUDA_VISIBLE_DEVICES=0,1 python3 /home/clionaodoherty/CMC/train_CMC.py \
     --resume /home/clionaodoherty/movie-associations/saves/Lab/movie-pretrain/ckpt_epoch_74.pth \
     --view Lab \
     --epochs 1 \
-    -learning_rate 3 
+    --learning_rate 3 
