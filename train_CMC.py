@@ -107,8 +107,8 @@ def parse_option():
         opt.lr_decay_epochs.append(int(it))
 
     opt.method = 'softmax' if opt.softmax else 'nce'
-    opt.model_name = 'memory_{}_{}_{}_lr_{}_decay_{}_bsz_{}'.format(opt.method, opt.nce_k, opt.model, opt.learning_rate,
-                                                                    opt.weight_decay, opt.batch_size)
+    opt.model_name = 'memory_{}_{}_{}_lr_{}_decay_{}_bsz_{}_sec_{}_view_{}'.format(opt.method, opt.nce_k, opt.model, opt.learning_rate,
+                                                                    opt.weight_decay, opt.batch_size, opt.time_lag, opt.view)
 
     if opt.amp:
         opt.model_name = '{}_amp_{}'.format(opt.model_name, opt.opt_level)
