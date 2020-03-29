@@ -2,8 +2,8 @@
 #
 #Use original Temporal Training but on 60 min timelag
 #
-#SBATCH --output=/home/clionaodoherty/movie-associations/logs/slurm%j.out
-#SBATCH --error=/home/clionaodoherty/movie-associations/logs/slurm%j.err
+#SBATCH --output=/home/clionaodoherty/movie-associations/logs/60min%j.out
+#SBATCH --error=/home/clionaodoherty/movie-associations/logs/60min%j.err
 #SBATCH --gres=gpu:2
 #SBATCH --cpus-per-task=12
 
