@@ -17,7 +17,7 @@ class MyAlexNetCMC(nn.Module):
 class TemporalAlexNetCMC(nn.Module):
     def __init__(self, feat_dim=128, pretrain=False):
         super(TemporalAlexNetCMC, self).__init__()
-        self.encoder = alexnet_temporal(feat_dim=feat_dim)
+        self.encoder = alexnet_temporal(feat_dim=feat_dim, pretrain=pretrain)
         self.encoder = nn.DataParallel(self.encoder)
     
     def forward(self, x, layer=8):
