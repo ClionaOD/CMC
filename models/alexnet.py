@@ -2,6 +2,7 @@ from __future__ import print_function
 
 import torch
 import torch.nn as nn
+from torchvision import models
 
 
 class MyAlexNetCMC(nn.Module):
@@ -14,7 +15,7 @@ class MyAlexNetCMC(nn.Module):
         return self.encoder(x, layer)
 
 class TemporalAlexNetCMC(nn.Module):
-    def __init__(self, feat_dim=128):
+    def __init__(self, feat_dim=128, pretrain=False):
         super(TemporalAlexNetCMC, self).__init__()
         self.encoder = alexnet_temporal(feat_dim=feat_dim)
         self.encoder = nn.DataParallel(self.encoder)
@@ -37,13 +38,17 @@ class alexnet(nn.Module):
         return feat_l, feat_ab
 
 class alexnet_temporal(nn.Module):
-    def __init__(self, feat_dim=128):
+    def __init__(self, feat_dim=128, pretrain=False):
         super(alexnet_temporal, self).__init__()
-        self.alexnet = alexnet_full(feat_dim=feat_dim)
+        if pretrain:
+            self.alexnet = models.alexnet(pretrained=True)
+        else:
+            self.alexnet = alexnet_full(feat_dim=feat_dim)
 
     def forward(self, x, layer=8):
         feat = self.alexnet(x, layer)
         return feat
+
 
 class alexnet_half(nn.Module):
     def __init__(self, in_channel=1, feat_dim=128):

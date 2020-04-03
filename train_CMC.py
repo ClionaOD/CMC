@@ -186,10 +186,7 @@ def set_model(args, n_data):
         if not args.view == 'temporal':             #COD 20/02/07 include two full alexnets for the temporal view
             model = MyAlexNetCMC(args.feat_dim)     
         else:
-            model = TemporalAlexNetCMC(args.feat_dim)
-
-            if args.pretrained == True:
-                model = models.alexnet(pretrained=True)
+            model = TemporalAlexNetCMC(args.feat_dim, args.pretrained)
     elif args.model.startswith('resnet'):
         model = MyResNetsCMC(args.model)
     else:
