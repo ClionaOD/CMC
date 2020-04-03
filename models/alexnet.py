@@ -45,9 +45,16 @@ class alexnet_temporal(nn.Module):
         else:
             self.alexnet = alexnet_full(feat_dim=feat_dim)
 
-    def forward(self, x, layer=8):
-        feat = self.alexnet(x, layer)
-        return feat
+    def forward(self, x, layer=8, pretrain=False):
+        if pretrain:
+            x = self.features(x)
+            x = self.avgpool(x)
+            x = torch.flatten(x, 1)
+            x = self.classifier(x)
+            return x
+        else:
+            feat = self.alexnet(x, layer)
+            return feat
 
 
 class alexnet_half(nn.Module):
