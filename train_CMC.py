@@ -93,7 +93,7 @@ def parse_option():
     parser.add_argument('--time_lag', type=int, default=100, help='number of 1 second frames to lag by')
 
     # use ImageNet pretrained AlexNet
-    parse.add_argument('--pretrained', type=bool, default=False, help='whether to load a pretrained model for temporal finetuning')
+    parser.add_argument('--pretrained', type=bool, default=False, help='whether to load a pretrained model for temporal finetuning')
 
     opt = parser.parse_args()
 
