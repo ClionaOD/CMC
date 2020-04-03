@@ -42,11 +42,12 @@ class alexnet_temporal(nn.Module):
         super(alexnet_temporal, self).__init__()
         if pretrain:
             self.alexnet = models.alexnet(pretrained=True)
+            self.pretrain = pretrain
         else:
             self.alexnet = alexnet_full(feat_dim=feat_dim)
 
-    def forward(self, x, layer=8, pretrain=False):
-        if pretrain:
+    def forward(self, x, layer=8):
+        if self.pretrain==True:
             x = self.features(x)
             x = self.avgpool(x)
             x = torch.flatten(x, 1)
