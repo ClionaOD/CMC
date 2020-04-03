@@ -48,10 +48,10 @@ class alexnet_temporal(nn.Module):
 
     def forward(self, x, layer=8):
         if self.pretrain==True:
-            x = self.features(x)
-            x = self.avgpool(x)
+            x = self.alexnet.features(x)
+            x = self.alexnet.avgpool(x)
             x = torch.flatten(x, 1)
-            x = self.classifier(x)
+            x = self.alexnet.classifier(x)
             return x
         else:
             feat = self.alexnet(x, layer)
