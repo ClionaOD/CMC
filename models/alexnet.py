@@ -15,9 +15,9 @@ class MyAlexNetCMC(nn.Module):
         return self.encoder(x, layer)
 
 class TemporalAlexNetCMC(nn.Module):
-    def __init__(self, feat_dim=128, pretrain=False):
+    def __init__(self, feat_dim=128):
         super(TemporalAlexNetCMC, self).__init__()
-        self.encoder = alexnet_temporal(feat_dim=feat_dim, pretrain=pretrain)
+        self.encoder = alexnet_temporal(feat_dim=feat_dim)
         self.encoder = nn.DataParallel(self.encoder)
     
     def forward(self, x, layer=8):
@@ -38,24 +38,13 @@ class alexnet(nn.Module):
         return feat_l, feat_ab
 
 class alexnet_temporal(nn.Module):
-    def __init__(self, feat_dim=128, pretrain=False):
+    def __init__(self, feat_dim=128):
         super(alexnet_temporal, self).__init__()
-        if pretrain:
-            self.alexnet = models.alexnet(pretrained=True)
-            self.pretrain = pretrain
-        else:
-            self.alexnet = alexnet_full(feat_dim=feat_dim)
+        self.alexnet = alexnet_full(feat_dim=feat_dim)
 
     def forward(self, x, layer=8):
-        if self.pretrain==True:
-            x = self.alexnet.features(x)
-            x = self.alexnet.avgpool(x)
-            x = torch.flatten(x, 1)
-            x = self.alexnet.classifier(x)
-            return x
-        else:
-            feat = self.alexnet(x, layer)
-            return feat
+        feat = self.alexnet(x, layer)
+        return feat
 
 
 class alexnet_half(nn.Module):
