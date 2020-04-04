@@ -118,7 +118,7 @@ def parse_option():
 
 def get_train_val_loader(args):
     train_folder = os.path.join(args.data_folder, 'train')
-    val_folder = os.path.join(args.data_folder, 'val')
+    val_folder = os.path.join(args.data_folder, 'val_in_folders')
 
     if args.view == 'Lab':
         mean = [(0 + 100) / 2, (-86.183 + 98.233) / 2, (-107.857 + 94.478) / 2]
