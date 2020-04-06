@@ -315,7 +315,7 @@ def train(epoch, train_loader, model, contrast, criterion_l, criterion_ab, optim
                 feat_one = torch.cat((one_l.detach(), one_ab.detach()), dim=1)
 
                 two_l, two_ab = model(inputs2)
-                feat_two - torch.cat((two_l.detach(), two_ab.detach()), dim=1)
+                feat_two = torch.cat((two_l.detach(), two_ab.detach()), dim=1)
             
             out_one, out_two = contrast(feat_one, feat_two, index)
 
