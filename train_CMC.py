@@ -406,7 +406,7 @@ def main():
             print("=> loading pretrained model '{}'".format(args.pretrain_path))
             pretrained = torch.load(args.pretrain_path, map_location='cpu')
             model.load_state_dict(pretrained['model'])
-            print("=> loaded pretrained '{}'".format(args.pretrained_path))
+            print("=> loaded pretrained '{}'".format(args.pretrain_path))
             del pretrained
         else:
             print("=> no pretrained model found at '{}'".format(args.pretrain_path))
