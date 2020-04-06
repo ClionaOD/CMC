@@ -241,14 +241,12 @@ def train(epoch, train_loader, model, contrast, criterion_l, criterion_ab, optim
 
             bsz = inputs.size(0)
             inputs = inputs.float()
-            print(inputs.size())
             if torch.cuda.is_available():
                 index = index.cuda(non_blocking=True)
                 inputs = inputs.cuda()
 
             # ===================forward=====================
             feat_l, feat_ab = model(inputs)
-            print(feat_l.size(), feat_ab.size())
             out_l, out_ab = contrast(feat_l, feat_ab, index)
 
             l_loss = criterion_l(out_l)
