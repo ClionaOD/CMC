@@ -94,6 +94,7 @@ def parse_option():
 
     # use ImageNet pretrained AlexNet
     parser.add_argument('--pretrained', type=bool, default=False, help='whether to load a pretrained model for temporal finetuning')
+    parser.add_argument('--pretrain_path', type=str, default='', help='path for pretrained')
 
     opt = parser.parse_args()
 
@@ -398,6 +399,17 @@ def main():
             torch.cuda.empty_cache()
         else:
             print("=> no checkpoint found at '{}'".format(args.resume))
+
+    # optionally use a pretrained network
+    if args.pretrained:
+        if os.path.isfile(args.pretrain_path):
+            print("=> loading pretrained model '{}'".format(args.pretrain_path))
+            pretrained = torch.load(args.pretrain_path, map_location='cpu')
+            model.load_state_dict(pretrained['model'])
+            print("=> loaded pretrained '{}'".format(args.pretrained_path))
+            del pretrained
+        else:
+            print("=> no pretrained model found at '{}'".format(args.pretrain_path))
 
     # tensorboard
     logger = tb_logger.Logger(logdir=args.tb_folder, flush_secs=2)

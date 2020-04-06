@@ -15,4 +15,4 @@ python3 /home/clionaodoherty/CMC/train_CMC.py \
     --time_lag 300 \
     --view temporal \
     --pretrained True \
-    --resume /home/clionaodoherty/CMC/models/CMC_alexnet.pth
+    --pretrain_path /home/clionaodoherty/CMC/models/CMC_alexnet.pth
