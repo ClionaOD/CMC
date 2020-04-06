@@ -14,5 +14,5 @@ python3 /home/clionaodoherty/CMC/train_CMC.py \
     --tb_path /home/clionaodoherty/CMC/tensorboard/finetune \
     --time_lag 300 \
     --view temporal \
-    --pretrained False \
-    --pretrain_path /home/clionaodoherty/movie-associations/saves/Lab/movie-pretrain/memory_nce_16384_alexnet_lr_0.03_decay_0.0001_bsz_128_view_Lab/ckpt_epoch_200.pth
+    --pretrained False 
+    #--pretrain_path /home/clionaodoherty/movie-associations/saves/Lab/movie-pretrain/memory_nce_16384_alexnet_lr_0.03_decay_0.0001_bsz_128_view_Lab/ckpt_epoch_200.pth
