@@ -243,7 +243,11 @@ def train(epoch, train_loader, model, classifier, criterion, optimizer, opt):
         with torch.no_grad():
             if not opt.view == 'temporal':
                 feat_l, feat_ab = model(input, opt.layer)  
+
+                print(feat_l.size(), feat_ab.size())
                 feat = torch.cat((feat_l.detach(), feat_ab.detach()), dim=1)
+
+                print(feat.size())
             else:
                 feat = model(input,opt.layer)
 
@@ -304,9 +308,7 @@ def validate(val_loader, model, classifier, criterion, opt):
             # compute output
             if not opt.view == 'temporal':
                 feat_l, feat_ab = model(input, opt.layer)
-                print(feat_l.size(), feat_ab.size())
                 feat = torch.cat((feat_l.detach(), feat_ab.detach()), dim=1) 
-                print(feat.size())
             else:
                 feat = model(input, opt.layer)
             output = classifier(feat)
