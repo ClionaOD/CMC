@@ -307,7 +307,7 @@ def train(epoch, train_loader, model, contrast, criterion_l, criterion_ab, optim
                 inputs2 = inputs2.cuda()
 
             # ===================forward=====================
-            if opt.pretrained == False:
+            if not opt.pretrained:
                 feat_one = model(inputs1)
                 print(feat_one.size())
                 feat_two = model(inputs2)
