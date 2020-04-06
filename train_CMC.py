@@ -241,12 +241,14 @@ def train(epoch, train_loader, model, contrast, criterion_l, criterion_ab, optim
 
             bsz = inputs.size(0)
             inputs = inputs.float()
+            print(inputs.size())
             if torch.cuda.is_available():
                 index = index.cuda(non_blocking=True)
                 inputs = inputs.cuda()
 
             # ===================forward=====================
             feat_l, feat_ab = model(inputs)
+            print(feat_l.size(), feat_ab.size())
             out_l, out_ab = contrast(feat_l, feat_ab, index)
 
             l_loss = criterion_l(out_l)
@@ -309,23 +311,13 @@ def train(epoch, train_loader, model, contrast, criterion_l, criterion_ab, optim
             # ===================forward=====================
             if not opt.pretrained:
                 feat_one = model(inputs1)
-                print(feat_one.size())
                 feat_two = model(inputs2)
-                print(feat_two.size())
-
-                break
             else:
-                print(inputs1.size())
-                print(inputs2.size())
                 one_l, one_ab = model(inputs1)
-                print(one_l.size(), one_ab.size())
                 feat_one = torch.cat((one_l.detach(), one_ab.detach()), dim=1)
-                print(feat_one.size())
 
                 two_l, two_ab = model(inputs2)
-                print(two_l.size(), two_ab.size())
                 feat_two = torch.cat((two_l.detach(), two_ab.detach()), dim=1)
-                print(feat_two.size())
             
             out_one, out_two = contrast(feat_one, feat_two, index)
 
