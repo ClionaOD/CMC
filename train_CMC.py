@@ -19,6 +19,7 @@ from util import adjust_learning_rate, AverageMeter
 
 from models.alexnet import MyAlexNetCMC
 from models.alexnet import TemporalAlexNetCMC #COD 20/02/07
+from models.alexnet import PretrainAlexNet    #COD 20/04/06
 from models.resnet import MyResNetsCMC
 from NCE.NCEAverage import NCEAverage
 from NCE.NCECriterion import NCECriterion
@@ -93,8 +94,7 @@ def parse_option():
     parser.add_argument('--time_lag', type=int, default=100, help='number of 1 second frames to lag by')
 
     # use ImageNet pretrained AlexNet
-    parser.add_argument('--pretrained', type=bool, default=False, help='whether to load a pretrained model for temporal finetuning')
-    parser.add_argument('--pretrain_path', type=str, default='', help='path for pretrained')
+    parser.add_argument('--pretrained', type=str, default=None, help='path for pretrained')
 
     opt = parser.parse_args()
 
@@ -190,7 +190,7 @@ def set_model(args, n_data):
             if not args.pretrained:
                 model = TemporalAlexNetCMC(args.feat_dim)
             else:
-                model = MyAlexNetCMC(args.feat_dim)
+                model = PretrainAlexNet(args.feat_dim)
     elif args.model.startswith('resnet'):
         model = MyResNetsCMC(args.model)
     else:
@@ -311,11 +311,7 @@ def train(epoch, train_loader, model, contrast, criterion_l, criterion_ab, optim
                 feat_one = model(inputs1)
                 feat_two = model(inputs2)
             else:
-                one_l, one_ab = model(inputs1)
-                feat_one = torch.cat((one_l.detach(), one_ab.detach()), dim=1)
-
-                two_l, two_ab = model(inputs2)
-                feat_two = torch.cat((two_l.detach(), two_ab.detach()), dim=1)
+                feat_one, feat_two = model(inputs1, inputs2)
             
             out_one, out_two = contrast(feat_one, feat_two, index)
 
@@ -402,14 +398,14 @@ def main():
 
     # optionally use a pretrained network
     if args.pretrained:
-        if os.path.isfile(args.pretrain_path):
-            print("=> loading pretrained model '{}'".format(args.pretrain_path))
-            pretrained = torch.load(args.pretrain_path, map_location='cpu')
+        if os.path.isfile(args.pretrained):
+            print("=> loading pretrained model '{}'".format(args.pretrained))
+            pretrained = torch.load(args.pretrained, map_location='cpu')
             model.load_state_dict(pretrained['model'])
-            print("=> loaded pretrained '{}'".format(args.pretrain_path))
+            print("=> loaded pretrained '{}'".format(args.pretrained))
             del pretrained
         else:
-            print("=> no pretrained model found at '{}'".format(args.pretrain_path))
+            print("=> no pretrained model found at '{}'".format(args.pretrained))
     else:
         print('=> training from random weights')
 

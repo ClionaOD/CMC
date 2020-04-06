@@ -23,6 +23,27 @@ class TemporalAlexNetCMC(nn.Module):
     def forward(self, x, layer=8):
         return self.encoder(x, layer)
 
+class PretrainAlexNet(nn.Module):
+    def __init__(self, feat_dim=128):
+        super(PretrainAlexNet, self).__init__()
+        self.encoder = alexnet_pretrain(feat_dim=feat_dim)
+        self.encoder = nn.DataParallel(self.encoder)
+    
+    def forward(self, x, layer=8):
+        return self.encoder(x, layer)
+
+class alexnet_pretrain(nn.Module):
+    def __init__(self, feat_dim=128):
+        super(alexnet_pretrain, self).__init__()
+
+        self.one_to_two = alexnet_half(in_channel=3, feat_dim=feat_dim)
+        self.two_to_one = alexnet_half(in_channel=3, feat_dim=feat_dim)
+
+    def forward(self, x, y, layer=8):
+        feat_one = self.one_to_two(x, layer)
+        feat_two = self.two_to_one(y, layer)
+        return feat_one, feat_two
+
 
 class alexnet(nn.Module):
     def __init__(self, feat_dim=128):

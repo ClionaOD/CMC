@@ -242,12 +242,8 @@ def train(epoch, train_loader, model, classifier, criterion, optimizer, opt):
         # ===================forward=====================
         with torch.no_grad():
             if not opt.view == 'temporal':
-                feat_l, feat_ab = model(input, opt.layer)  
-
-                print(feat_l.size(), feat_ab.size())
+                feat_l, feat_ab = model(input, opt.layer)
                 feat = torch.cat((feat_l.detach(), feat_ab.detach()), dim=1)
-
-                print(feat.size())
             else:
                 feat = model(input,opt.layer)
 
