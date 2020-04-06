@@ -186,7 +186,10 @@ def set_model(args, n_data):
         if not args.view == 'temporal':             #COD 20/02/07 include two full alexnets for the temporal view
             model = MyAlexNetCMC(args.feat_dim)     
         else:
-            model = TemporalAlexNetCMC(args.feat_dim, args.pretrained)
+            if args.pretrained == False:
+                model = TemporalAlexNetCMC(args.feat_dim)
+            else:
+                model = MyAlexNetCMC(args.feat_dim)
     elif args.model.startswith('resnet'):
         model = MyResNetsCMC(args.model)
     else:
@@ -303,8 +306,16 @@ def train(epoch, train_loader, model, contrast, criterion_l, criterion_ab, optim
                 inputs2 = inputs2.cuda()
 
             # ===================forward=====================
-            feat_one = model(inputs1)
-            feat_two = model(inputs2)
+            if opt.pretrained == False:
+                feat_one = model(inputs1)
+                feat_two = model(inputs2)
+            else:
+                one_l, one_ab = model(inputs1)
+                feat_one = torch.cat((one_l.detach(), one_ab.detach()), dim=1)
+
+                two_l, two_ab = model(inputs2)
+                feat_two - torch.cat((two_l.detach(), two_ab.detach()), dim=1)
+            
             out_one, out_two = contrast(feat_one, feat_two, index)
 
             one_loss = criterion_l(out_one) #l is naming convention only

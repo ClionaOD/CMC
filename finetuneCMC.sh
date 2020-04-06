@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#Use original Temporal Training but on pretrained AlexNet
+#Use original Temporal Training but on Lab pretrained AlexNet
 #
 #SBATCH --output=/home/clionaodoherty/movie-associations/logs/fineTune_5min%j.out
 #SBATCH --error=/home/clionaodoherty/movie-associations/logs/fineTune_5min%j.err
@@ -14,4 +14,5 @@ python3 /home/clionaodoherty/CMC/train_CMC.py \
     --tb_path /home/clionaodoherty/CMC/tensorboard/finetune \
     --time_lag 300 \
     --view temporal \
-    --pretrained True
+    --pretrained True \
+    --resume /home/clionaodoherty/CMC/models/CMC_alexnet.pth
