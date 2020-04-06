@@ -187,7 +187,7 @@ def set_model(args, n_data):
         if not args.view == 'temporal':             #COD 20/02/07 include two full alexnets for the temporal view
             model = MyAlexNetCMC(args.feat_dim)     
         else:
-            if args.pretrained == False:
+            if not args.pretrained:
                 model = TemporalAlexNetCMC(args.feat_dim)
             else:
                 model = MyAlexNetCMC(args.feat_dim)
@@ -420,6 +420,8 @@ def main():
             del pretrained
         else:
             print("=> no pretrained model found at '{}'".format(args.pretrain_path))
+    else:
+        print('=> training from random weights')
 
     # tensorboard
     logger = tb_logger.Logger(logdir=args.tb_folder, flush_secs=2)
