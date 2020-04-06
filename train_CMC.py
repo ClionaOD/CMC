@@ -309,7 +309,11 @@ def train(epoch, train_loader, model, contrast, criterion_l, criterion_ab, optim
             # ===================forward=====================
             if opt.pretrained == False:
                 feat_one = model(inputs1)
+                print(feat_one.size())
                 feat_two = model(inputs2)
+                print(feat_two.size())
+
+                break
             else:
                 print(inputs1.size())
                 print(inputs2.size())
