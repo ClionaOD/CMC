@@ -311,11 +311,17 @@ def train(epoch, train_loader, model, contrast, criterion_l, criterion_ab, optim
                 feat_one = model(inputs1)
                 feat_two = model(inputs2)
             else:
+                print(inputs1.size)
+                print(inputs2.size)
                 one_l, one_ab = model(inputs1)
+                print(one_l.size, one_ab.size)
                 feat_one = torch.cat((one_l.detach(), one_ab.detach()), dim=1)
+                print(feat_one.size)
 
                 two_l, two_ab = model(inputs2)
+                print(two_l.size, two_ab.size)
                 feat_two = torch.cat((two_l.detach(), two_ab.detach()), dim=1)
+                print(feat_two.size)
             
             out_one, out_two = contrast(feat_one, feat_two, index)
 
