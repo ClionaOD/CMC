@@ -315,7 +315,7 @@ def train(epoch, train_loader, model, contrast, criterion_l, criterion_ab, optim
             else:
                 one_l, one_ab = model(inputs1)
                 feat_one = one_l[:, np.newaxis]
-                feat_one[:,:,2] = one_ab 
+                feat_one[:,:,1] = one_ab 
                 print(feat_one.size())
                 feat_two, _ = model(inputs2)
             out_one, out_two = contrast(feat_one, feat_two, index)
