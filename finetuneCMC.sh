@@ -14,4 +14,4 @@ python3 /home/clionaodoherty/CMC/train_CMC.py \
     --tb_path /home/clionaodoherty/CMC/tensorboard/finetune \
     --time_lag 300 \
     --view temporal \
-    --pretrained True
+    --pretrained /home/clionaodoherty/CMC/models/CMC_alexnet.py

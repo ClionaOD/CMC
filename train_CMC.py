@@ -395,6 +395,13 @@ def main():
         else:
             print("=> no checkpoint found at '{}'".format(args.resume))
 
+    if args.pretrained:
+        pre = torch.load(args.pretrained, map_location='cpu')
+        model.load_state_dict(pre['model'])
+        del pre
+    else:
+        print('No pretrained found')
+
     # tensorboard
     logger = tb_logger.Logger(logdir=args.tb_folder, flush_secs=2)
 
