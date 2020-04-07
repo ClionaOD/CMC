@@ -189,7 +189,7 @@ def set_model(args, n_data):
             if not args.pretrained:
                 model = TemporalAlexNetCMC(args.feat_dim)
             else:
-                model = MyAlexNetCMC
+                model = MyAlexNetCMC()
     elif args.model.startswith('resnet'):
         model = MyResNetsCMC(args.model)
     else:
