@@ -36,12 +36,12 @@ class alexnet_pretrain(nn.Module):
     def __init__(self, feat_dim=128):
         super(alexnet_pretrain, self).__init__()
 
-        self.one_to_two = alexnet_half(in_channel=3, feat_dim=feat_dim)
-        self.two_to_one = alexnet_half(in_channel=3, feat_dim=feat_dim)
+        self.l_to_ab = alexnet_half(in_channel=3, feat_dim=feat_dim)
+        self.ab_to_l = alexnet_half(in_channel=3, feat_dim=feat_dim)
 
     def forward(self, x, y, layer=8):
-        feat_one = self.one_to_two(x, layer)
-        feat_two = self.two_to_one(y, layer)
+        feat_one = self.l_to_ab(x, layer)
+        feat_two = self.ab_to_l(y, layer)
         return feat_one, feat_two
 
 
