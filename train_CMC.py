@@ -10,6 +10,7 @@ import torch
 import torch.backends.cudnn as cudnn
 import argparse
 import socket
+import numpy as np
 
 import tensorboard_logger as tb_logger
 
@@ -313,7 +314,8 @@ def train(epoch, train_loader, model, contrast, criterion_l, criterion_ab, optim
                 feat_two = model(inputs2)
             else:
                 one_l, one_ab = model(inputs1)
-                feat_one = [[one_l],[one_ab]]
+                feat_one = one_l[:, np.new_axis]
+                feat_one[:,:,2] = one_ab 
                 print(feat_one.size())
                 feat_two, _ = model(inputs2)
             out_one, out_two = contrast(feat_one, feat_two, index)
