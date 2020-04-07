@@ -117,6 +117,8 @@ def parse_option():
         opt.model_name = '{}_amp_{}'.format(opt.model_name, opt.opt_level)
 
     opt.model_name = '{}_view_{}'.format(opt.model_name, opt.view)
+    if opt.pretrained:
+        opt.model_name = 'pretrained_{}'.format(opt.model_name)
 
     opt.model_folder = os.path.join(opt.model_path, opt.model_name)
     if not os.path.isdir(opt.model_folder):
