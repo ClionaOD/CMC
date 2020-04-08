@@ -392,9 +392,9 @@ def main():
             print("=> no checkpoint found at '{}'".format(args.resume))
 
     if args.pretrained:
-        pre = torch.load(args.pretrained, map_location='cpu')
-        model.load_state_dict(pre['model'])
-        del pre
+        state_dict = torch.load(args.pretrained, map_location='cpu')
+        model.load_state_dict(state_dict)
+        del state_dict
     else:
         print('No pretrained model found at {}'.format(args.pretrained))
 
