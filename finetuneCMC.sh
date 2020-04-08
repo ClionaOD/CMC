@@ -12,6 +12,6 @@ python3 /home/clionaodoherty/CMC/train_CMC.py \
     --data_folder /data/movie-associations \
     --model_path /home/clionaodoherty/movie-associations/saves/temporal/finetune5min \
     --tb_path /home/clionaodoherty/CMC/tensorboard/finetune \
-    --time_lag 300 \
+    --time_lag 1 \
     --view temporal \
     --pretrained /home/clionaodoherty/movie-associations/saves/Lab_pretrained_fullAlexNet.pth

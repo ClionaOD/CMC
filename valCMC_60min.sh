@@ -11,4 +11,5 @@ python3 /home/clionaodoherty/CMC/LinearProbing.py \
     --save_path /home/clionaodoherty/movie-associations/saves/temporal/imgnet-val-60min \
     --tb_path /home/clionaodoherty/CMC/tensorboard/val \
     --model_path /home/clionaodoherty/movie-associations/saves/temporal/movie-pretrain-60min/memory_nce_16384_alexnet_lr_0.03_decay_0.0001_bsz_128_sec_3600_view_temporal/ckpt_epoch_220.pth \
-    --view temporal
+    --view temporal \
+    --resume /home/clionaodoherty/movie-associations/saves/temporal/imgnet-val-60min/calibrated_memory_nce_16384_alexnet_lr_0.03_decay_0.0001_bsz_128_sec_3600_view_temporal_bsz_256_lr_0.1_decay_0_view_temporal/ckpt_epoch_36.pth
