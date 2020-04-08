@@ -61,7 +61,7 @@ new_layers = collections.OrderedDict(list(zip(temp_layers,temp_weights)))
 temporal['model'] = new_layers
 
 model = TemporalAlexNetCMC()
-model.load_state_dict[temporal['model']]
+model.load_state_dict(temporal['model'])
 torch.save(model.state_dict(), '/home/clionaodoherty/movie-associations/saves/Lab_pretrained_fullAlexNet.pth')
     
 
