@@ -189,10 +189,7 @@ def set_model(args, n_data):
         if not args.view == 'temporal':             #COD 20/02/07 include two full alexnets for the temporal view
             model = MyAlexNetCMC(args.feat_dim)     
         else:
-            if not args.pretrained:
-                model = TemporalAlexNetCMC(args.feat_dim)
-            else:
-                model = MyAlexNetCMC()
+            model = TemporalAlexNetCMC(args.feat_dim)
     elif args.model.startswith('resnet'):
         model = MyResNetsCMC(args.model)
     else:
@@ -309,12 +306,8 @@ def train(epoch, train_loader, model, contrast, criterion_l, criterion_ab, optim
                 inputs2 = inputs2.cuda()
 
             # ===================forward=====================
-            if not opt.pretrained:
-                feat_one = model(inputs1)
-                feat_two = model(inputs2)
-            else:
-                feat_one, _ = model(inputs1)
-                feat_two, _ = model(inputs2)
+            feat_one = model(inputs1)
+            feat_two = model(inputs2)
             out_one, out_two = contrast(feat_one, feat_two, index)
 
             one_loss = criterion_l(out_one) #l is naming convention only
@@ -403,7 +396,7 @@ def main():
         model.load_state_dict(pre['model'])
         del pre
     else:
-        print('No pretrained found')
+        print('No pretrained model found at {}'.format(args.pretrained))
 
     # tensorboard
     logger = tb_logger.Logger(logdir=args.tb_folder, flush_secs=2)
