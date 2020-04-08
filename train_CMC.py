@@ -313,10 +313,7 @@ def train(epoch, train_loader, model, contrast, criterion_l, criterion_ab, optim
                 feat_one = model(inputs1)
                 feat_two = model(inputs2)
             else:
-                one_l, one_ab = model(inputs1)
-                feat_one = one_l[:, np.newaxis]
-                feat_one[:,:,1] = one_ab 
-                print(feat_one.size())
+                feat_one, _ = model(inputs1)
                 feat_two, _ = model(inputs2)
             out_one, out_two = contrast(feat_one, feat_two, index)
 
