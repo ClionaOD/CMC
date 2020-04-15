@@ -96,6 +96,9 @@ def parse_option():
     # use ImageNet pretrained AlexNet
     parser.add_argument('--pretrained', type=str, default=False, help='whether to start from pretrained AlexNet')
 
+    # use Chen color_distortion from SimCLR
+    parser.add_argument('--distort', type=bool, default=False, help='use SimCLR color distortion')
+
     opt = parser.parse_args()
 
     if (opt.data_folder is None) or (opt.model_path is None) or (opt.tb_path is None):
@@ -134,6 +137,14 @@ def parse_option():
 
     return opt
 
+def get_color_distortion(s=1.0):
+    color_jitter = transforms.ColorJitter(0.8*s, 0.8*s, 0.8*s, 0.2*s)
+    rnd_color_jitter = transforms.RandomApply([color_jitter],p=0.8)
+    rnd_gray = transforms.RandomGrayscale(p=0.2)
+    color_distort = transforms.Compose([
+        rnd_color_jitter,
+        rnd_gray])
+    return color_distort
 
 def get_train_loader(args):
     """get the train loader"""
@@ -147,10 +158,13 @@ def get_train_loader(args):
         mean = [116.151, 121.080, 132.342]
         std = [109.500, 111.855, 111.964]
         color_transfer = RGB2YCbCr()
-    elif args.view == 'temporal':                                                       #Use Lab for comparison 
+    elif args.view == 'temporal':                                                       
         mean = [(0 + 100) / 2, (-86.183 + 98.233) / 2, (-107.857 + 94.478) / 2]
         std = [(100 - 0) / 2, (86.183 + 98.233) / 2, (107.857 + 94.478) / 2]
-        color_transfer = RGB2Lab()
+        if args.distort:
+            color_transfer = get_color_distortion()
+        else:
+            color_transfer = RGB2Lab()
     else:
         raise NotImplemented('view not implemented {}'.format(args.view))
     
