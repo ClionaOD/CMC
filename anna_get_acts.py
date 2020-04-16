@@ -136,7 +136,7 @@ if __name__ == '__main__':
     checkpoint = torch.load(modelpth)['model']
 
     model = TemporalAlexNetCMC()
-    model.load_state_dict(checkpoint_new)
+    model.load_state_dict(checkpoint)
     model.cuda()
     image_pth = '/data/ILSVRC2012/val_in_folders' 
     act = get_activations(image_pth)
