@@ -18,7 +18,7 @@ import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 import datetime
 
-import clustering
+#import clustering
 import models
 from util import AverageMeter, Logger, UnifLabelSampler
 
