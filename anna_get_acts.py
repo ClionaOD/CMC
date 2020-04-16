@@ -133,7 +133,7 @@ if __name__ == '__main__':
 #    global args
 #    args = parser.parse_args()
     modelpth = '/home/clionaodoherty//movie-associations/saves/temporal/finetune1sec/movie-training-1sec/pretrained_memory_nce_16384_alexnet_lr_0.03_decay_0.0001_bsz_128_sec_1_view_temporal/ckpt_epoch_80.pth'
-    checkpoint = torch.load(modelpth)['state_dict']
+    checkpoint = torch.load(modelpth)['model']
     checkpoint_new = OrderedDict()
     for k, v in checkpoint.items():
         name = k.replace(".module", '') # remove 'module.' of dataparallel
