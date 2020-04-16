@@ -5,7 +5,7 @@ import pickle
 import time
 from collections import OrderedDict
 
-import faiss
+#import faiss
 import numpy as np
 from sklearn.metrics.cluster import normalized_mutual_info_score
 import torch
