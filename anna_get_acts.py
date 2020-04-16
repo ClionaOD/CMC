@@ -20,7 +20,7 @@ import datetime
 
 #import clustering
 import models
-from util import AverageMeter, Logger, UnifLabelSampler
+from util import AverageMeter
 
 from dataset import RGB2Lab
 from models.alexnet import TemporalAlexNetCMC
