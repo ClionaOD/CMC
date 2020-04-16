@@ -113,7 +113,7 @@ def get_activations(offset):
 
     normalize = transforms.Normalize(mean=mean, std=std)
     train_transform = transforms.Compose([
-        transforms.RandomResizedCrop(224, scale=(args.crop_low, 1.)),
+        transforms.RandomResizedCrop(224, scale=(0.2, 1.)),
         transforms.RandomHorizontalFlip(),
         color_transfer,
         transforms.ToTensor(),
