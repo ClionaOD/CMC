@@ -80,6 +80,9 @@ def parse_option():
     # Time lag
     parser.add_argument('--time_lag', default=100, type=int, help='number of 1 sec frames to lag by')
 
+    #SimCLR distort
+    parser.add_argument('--distort', default=False, type=bool, help='whether to use SimCLR color distort')
+    
     opt = parser.parse_args()
 
     if (opt.data_folder is None) or (opt.save_path is None) or (opt.tb_path is None):
@@ -115,6 +118,14 @@ def parse_option():
 
     return opt
 
+def get_color_distortion(s=1.0):
+    color_jitter = transforms.ColorJitter(0.8*s, 0.8*s, 0.8*s, 0.2*s)
+    rnd_color_jitter = transforms.RandomApply([color_jitter],p=0.8)
+    rnd_gray = transforms.RandomGrayscale(p=0.2)
+    color_distort = transforms.Compose([
+        rnd_color_jitter,
+        rnd_gray])
+    return color_distort
 
 def get_train_val_loader(args):
     train_folder = os.path.join(args.data_folder, 'train')
@@ -131,7 +142,10 @@ def get_train_val_loader(args):
     elif args.view == 'temporal':                                                       #Use Lab for comparison 
         mean = [(0 + 100) / 2, (-86.183 + 98.233) / 2, (-107.857 + 94.478) / 2]
         std = [(100 - 0) / 2, (86.183 + 98.233) / 2, (107.857 + 94.478) / 2]
-        color_transfer = RGB2Lab()
+        if args.distort == True:
+            color_transfer = get_color_distortion()
+        else:
+            color_transfer = RGB2Lab()
     else:
         raise NotImplemented('view not implemented {}'.format(args.view))
 
