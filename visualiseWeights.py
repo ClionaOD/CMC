@@ -4,7 +4,7 @@ import torch.nn as nn
 from torchvision import models, transforms, datasets
 from models.alexnet import TemporalAlexNetCMC
 from dataset import RGB2Lab
-from nltk.corpus import wordnet as wn
+from dataset import ImageFolderWithPaths
 
 #freq items
 with open('./freq_order.pickle','rb') as f:
@@ -22,7 +22,7 @@ model.cuda()
 model.eval()
 
 #Define the transform and dataloader
-folder = '/data/ILSVRC2012/val_in_folders/n03450230/'
+folder = '/data/ILSVRC2012/val_in_folders/'
     
 mean = [(0 + 100) / 2, (-86.183 + 98.233) / 2, (-107.857 + 94.478) / 2]
 std = [(100 - 0) / 2, (86.183 + 98.233) / 2, (107.857 + 94.478) / 2]
@@ -38,7 +38,7 @@ train_transform = transforms.Compose([
 ])
 
 #This will return (sample, class_index) as transformed by above
-dataset = datasets.ImageFolder(
+dataset = ImageFolderWithPaths(
     folder,
     transform=train_transform)
 
@@ -54,6 +54,7 @@ def get_activation(name):
 model.encoder.module.alexnet.fc7.register_forward_hook(get_activation('fc7'))
 
 for idx, (input, target) in enumerate(loader):
+    print(idx)
     input = input.float()
     input = input.cuda()
     feat = model(input)
