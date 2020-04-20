@@ -104,7 +104,7 @@ if __name__ == '__main__':
     model = TemporalAlexNetCMC()
     model.load_state_dict(checkpoint)
     model.cuda()
-    image_pth = '/data/ILSVRC2012/val_in_folders' 
+    image_pth = '/home/clionaodoherty/imagenet_samples/' 
     act = get_activations(image_pth)
 
     with open('/home/clionaodoherty/activations.pickle', 'wb') as handle:
