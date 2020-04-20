@@ -61,7 +61,7 @@ def compute_features(dataloader, model, N):
     for i, input_tensor in enumerate(dataloader):
         with torch.no_grad():
             input_var, label = input_tensor[0].cuda(),input_tensor[2]
-            input_var.float()
+            input_var = input_var.float()
             _model_feats = []
             aux = model(input_var).data.cpu().numpy()
             act[label[0]] = _model_feats
