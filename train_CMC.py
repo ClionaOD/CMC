@@ -122,7 +122,7 @@ def parse_option():
         opt.model_name = '{}_amp_{}'.format(opt.model_name, opt.opt_level)
 
     opt.model_name = '{}_view_{}'.format(opt.model_name, opt.view)
-    if opt.split_temporal:
+    if opt.split_Lab:
         opt.model_name = '{}(Lab_split)'.format(opt.model_name)
     
     if opt.pretrained:
