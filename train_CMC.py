@@ -92,6 +92,7 @@ def parse_option():
 
     # range for timelag to test (COD 20/02/06)
     parser.add_argument('--time_lag', type=int, default=100, help='number of 1 second frames to lag by')
+    parser.add_argument('--split_Lab', type=bool, degault=False, help='whether to do Lab split across time')
 
     # use ImageNet pretrained AlexNet
     parser.add_argument('--pretrained', type=str, default=False, help='whether to start from pretrained AlexNet')
@@ -121,8 +122,12 @@ def parse_option():
         opt.model_name = '{}_amp_{}'.format(opt.model_name, opt.opt_level)
 
     opt.model_name = '{}_view_{}'.format(opt.model_name, opt.view)
+    if opt.split_temporal:
+        opt.model_name = '{}(Lab_split)'.format(opt.model_name)
+    
     if opt.pretrained:
         opt.model_name = 'pretrained_{}'.format(opt.model_name)
+    
 
     opt.model_folder = os.path.join(opt.model_path, opt.model_name)
     if not os.path.isdir(opt.model_folder):
@@ -204,6 +209,8 @@ def set_model(args, n_data):
             model = MyAlexNetCMC(args.feat_dim)     
         else:
             model = TemporalAlexNetCMC(args.feat_dim)
+            if args.split_Lab:
+                model = MyAlexNetCMC(args.feat_dim)
     elif args.model.startswith('resnet'):
         model = MyResNetsCMC(args.model)
     else:
@@ -320,8 +327,12 @@ def train(epoch, train_loader, model, contrast, criterion_l, criterion_ab, optim
                 inputs2 = inputs2.cuda()
 
             # ===================forward=====================
-            feat_one = model(inputs1)
-            feat_two = model(inputs2)
+            if not opt.split_Lab:
+                feat_one = model(inputs1)
+                feat_two = model(inputs2)
+            else:
+                feat_one, _ab = model(inputs1)
+                _l, feat_two = model(inputs2)
             out_one, out_two = contrast(feat_one, feat_two, index)
 
             one_loss = criterion_l(out_one) #l is naming convention only
