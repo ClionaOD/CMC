@@ -418,7 +418,10 @@ def main():
 
     if args.pretrained:
         state_dict = torch.load(args.pretrained, map_location='cpu')
-        model.load_state_dict(state_dict)
+        if not args.split_Lab:
+            model.load_state_dict(state_dict)
+        else:
+            model.load_state_dict(state_dict['model'])
         del state_dict
     else:
         print('No pretrained model found at {}'.format(args.pretrained))
