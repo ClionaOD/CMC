@@ -92,7 +92,7 @@ def parse_option():
 
     # range for timelag to test (COD 20/02/06)
     parser.add_argument('--time_lag', type=int, default=100, help='number of 1 second frames to lag by')
-    parser.add_argument('--split_Lab', type=bool, degault=False, help='whether to do Lab split across time')
+    parser.add_argument('--split_Lab', type=bool, default=False, help='whether to do Lab split across time')
 
     # use ImageNet pretrained AlexNet
     parser.add_argument('--pretrained', type=str, default=False, help='whether to start from pretrained AlexNet')
