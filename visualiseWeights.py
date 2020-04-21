@@ -22,7 +22,7 @@ model.cuda()
 model.eval()
 
 #Define the transform and dataloader
-folder = '/data/ILSVRC2012/val_in_folders/'
+folder = '/home/clionaodoherty/imagenet_samples/'
     
 mean = [(0 + 100) / 2, (-86.183 + 98.233) / 2, (-107.857 + 94.478) / 2]
 std = [(100 - 0) / 2, (86.183 + 98.233) / 2, (107.857 + 94.478) / 2]
@@ -46,18 +46,20 @@ loader = torch.utils.data.DataLoader(
     dataset, batch_size=1, shuffle=False)
 
 activation = {}
+
 def get_activation(name):
     def hook(model, input, output):
         activation[name] = output.detach()
     return hook
 
-model.encoder.module.alexnet.fc7.register_forward_hook(get_activation('fc7'))
-
-for idx, (input, target) in enumerate(loader):
-    print(idx)
+for idx, (input, target, path) in enumerate(loader):
+    model.encoder.module.alexnet.fc7.register_forward_hook(get_activation(path[0].split('/')[-2])) 
     input = input.float()
     input = input.cuda()
     feat = model(input)
+
+activation = {k[0].split('/')[-2]:v for k,v in activation.items()}
+
 
         
 
