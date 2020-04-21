@@ -15,6 +15,6 @@ python3 /home/clionaodoherty/CMC/train_CMC.py \
     --time_lag 1 \
     --view temporal \
     --split_Lab True \
-    --pretrained /home/clionaodoherty/movie-associations/saves/Lab_pretrained_fullAlexNet.pth \
+    --pretrained /home/clionaodoherty/CMC/models/CMC_alexnet.pth \
     --lr_decay_epochs 30,50,70 \
     --epochs 80 
