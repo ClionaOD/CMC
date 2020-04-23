@@ -11,7 +11,7 @@
 python3 /home/clionaodoherty/CMC/train_CMC.py \
     --data_folder /data/movie-associations \
     --model_path /data/movie-associations/saves/temporal/finetune10sec/movie-training-distorted \
-    --tb_path /home/clionaodoherty/CMC/tensorboard/finetune/30sec_distorted \
+    --tb_path /home/clionaodoherty/CMC/tensorboard/finetune/10sec_distorted \
     --time_lag 10 \
     --view temporal \
     --lr_decay_epochs 30,50,70 \
