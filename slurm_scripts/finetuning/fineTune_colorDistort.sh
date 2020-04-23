@@ -14,8 +14,7 @@ python3 /home/clionaodoherty/CMC/train_CMC.py \
     --tb_path /home/clionaodoherty/CMC/tensorboard/finetune/30sec_distorted \
     --time_lag 30 \
     --view temporal \
-    --pretrained /home/clionaodoherty/movie-associations/saves/Lab_pretrained_fullAlexNet.pth \
     --lr_decay_epochs 30,50,70 \
     --epochs 80 \
     --distort True \
-    --resume /data/movie-associaions/saves/temporal/finetune30sec/movie-training-distorted/.../ckpt_epoch_5.pth
+    --resume /data/movie-associations/saves/temporal/finetune30sec/movie-training-distorted/pretrained_memory_nce_16384_alexnet_lr_0.03_decay_0.0001_bsz_128_sec_30_view_temporal/ckpt_epoch_5.pth
