@@ -88,11 +88,11 @@ def get_activations(offset):
 if __name__ == '__main__':
 #    global args
 #    args = parser.parse_args()
-    modelpth = '/home/clionaodoherty//movie-associations/saves/temporal/finetune1sec/movie-training-1sec/pretrained_memory_nce_16384_alexnet_lr_0.03_decay_0.0001_bsz_128_sec_1_view_temporal/ckpt_epoch_80.pth'
-    checkpoint = torch.load(modelpth)['model']
+    #modelpth = '/home/clionaodoherty//movie-associations/saves/temporal/finetune1sec/movie-training-1sec/pretrained_memory_nce_16384_alexnet_lr_0.03_decay_0.0001_bsz_128_sec_1_view_temporal/ckpt_epoch_80.pth'
+    #checkpoint = torch.load(modelpth)['model']
 
     model = TemporalAlexNetCMC()
-    model.load_state_dict(checkpoint)
+    #model.load_state_dict(checkpoint)
     model.cuda()
     image_pth = '/home/clionaodoherty/imagenet_samples/' 
     act = get_activations(image_pth)

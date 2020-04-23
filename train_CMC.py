@@ -416,7 +416,7 @@ def main():
         else:
             print("=> no checkpoint found at '{}'".format(args.resume))
 
-    if args.pretrained:
+    if args.pretrained and not args.resume:
         state_dict = torch.load(args.pretrained, map_location='cpu')
         if not args.split_Lab:
             model.load_state_dict(state_dict)
