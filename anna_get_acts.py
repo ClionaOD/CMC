@@ -24,6 +24,7 @@ from util import AverageMeter
 
 from dataset import RGB2Lab
 from models.alexnet import TemporalAlexNetCMC
+from train_CMC import get_color_distortion
 
 
 class ImageFolderWithPaths(datasets.ImageFolder):
@@ -66,7 +67,7 @@ def compute_features(dataloader, model, N):
 def get_activations(offset):
     mean = [(0 + 100) / 2, (-86.183 + 98.233) / 2, (-107.857 + 94.478) / 2]
     std = [(100 - 0) / 2, (86.183 + 98.233) / 2, (107.857 + 94.478) / 2]
-    color_transfer = RGB2Lab()
+    color_transfer = get_color_distortion()
     normalize = transforms.Normalize(mean=mean, std=std)
     train_transform = transforms.Compose([
         transforms.RandomResizedCrop(224, scale=(0.2, 1.)),
@@ -86,7 +87,7 @@ def get_activations(offset):
 
 
 if __name__ == '__main__':
-    modelpth = '/data/movie-associations/saves/Lab_pretrained_fullAlexNet.pth'
+    modelpth = '/data/movie-associations/saves/temporal/finetune1sec/movie-training-distorted/pretrained_memory_nce_16384_alexnet_lr_0.03_decay_0.0001_bsz_128_sec_1_view_temporal/80'
     checkpoint = torch.load(modelpth)
 
     model = TemporalAlexNetCMC()
@@ -123,5 +124,5 @@ if __name__ == '__main__':
             activations[label][l] = mean
     print('done ... saving')
 
-    with open('/home/clionaodoherty/CMC/activations/authorlab_activations.pickle', 'wb') as handle:
+    with open('/home/clionaodoherty/CMC/activations/1secdistort_activations.pickle', 'wb') as handle:
         pickle.dump(activations, handle)
