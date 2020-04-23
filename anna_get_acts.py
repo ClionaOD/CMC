@@ -87,7 +87,7 @@ def get_activations(offset):
 
 if __name__ == '__main__':
     modelpth = '/data/movie-associations/randomweight_temporalCMC.pth'
-    checkpoint = torch.load(modelpth)['model']
+    checkpoint = torch.load(modelpth)
 
     model = TemporalAlexNetCMC()
     model.load_state_dict(checkpoint)
