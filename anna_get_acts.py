@@ -44,20 +44,16 @@ def compute_features(dataloader, model, N):
     print('Compute features')
     model.eval()
     act = {}
-
     def _store_feats(layer, inp, output):
         """An ugly but effective way of accessing intermediate model features
         """
         _model_feats.append(output.cpu().numpy())
-
     for m in model.encoder.modules():
         if isinstance(m, nn.ReLU):
             m.register_forward_hook(_store_feats)
-
     #for m in model.classifier.modules():
     #    if isinstance(m, nn.ReLU):
     #        m.register_forward_hook(_store_feats)
-
     for i, input_tensor in enumerate(dataloader):
         with torch.no_grad():
             input_var, label = input_tensor[0].cuda(),input_tensor[2]
@@ -65,15 +61,12 @@ def compute_features(dataloader, model, N):
             _model_feats = []
             aux = model(input_var).data.cpu().numpy()
             act[label[0]] = _model_feats
-            print(i)
-
     return act
 
 def get_activations(offset):
     mean = [(0 + 100) / 2, (-86.183 + 98.233) / 2, (-107.857 + 94.478) / 2]
     std = [(100 - 0) / 2, (86.183 + 98.233) / 2, (107.857 + 94.478) / 2]
     color_transfer = RGB2Lab()
-
     normalize = transforms.Normalize(mean=mean, std=std)
     train_transform = transforms.Compose([
         transforms.RandomResizedCrop(224, scale=(0.2, 1.)),
@@ -82,16 +75,13 @@ def get_activations(offset):
         transforms.ToTensor(),
         normalize,
     ])
-    
     dataset = ImageFolderWithPaths(offset, transform=train_transform)
     dataloader = torch.utils.data.DataLoader(dataset,
                                             batch_size=1,
                                             num_workers=0,
                                             pin_memory=True,
                                             shuffle = False)
-    
     features = compute_features(dataloader, model, len(dataset))
-    
     return features
 
 
@@ -107,5 +97,30 @@ if __name__ == '__main__':
     image_pth = '/home/clionaodoherty/imagenet_samples/' 
     act = get_activations(image_pth)
 
-    with open('/home/clionaodoherty/activations.pickle', 'wb') as handle:
-        pickle.dump(act, handle)
+    with open('/home/clionaodoherty/CMC/category_dict.pickle','rb') as f:
+        categories= pickle.load(f)
+    categories = list(categories.values())
+    categories = [list(k.keys()) for k in categories]
+    categories = [item for sublist in categories for item in sublist]
+
+    layers = ['conv1', 'conv2', 'conv3', 'conv4', 'conv5', 'fc6', 'fc7']
+    activations = {k:{l:[] for l in layers} for k in categories}
+
+    act_list = list(act.items()) #this is list of tuples len 50*34, x[0] is the path x[1] is the list of acts one per layer
+
+    for path, activation_list in act_list:
+        for label in categories:
+            if label in path:
+                for idx, l in enumerate(layers):
+                    activations[label][l].append(activation_list[idx])
+
+    for label in categories:
+        for l in layers:
+            mean = activations[label][l][0]
+            for i in activations[label][l][1:]:
+                mean = np.concatenate((mean,i), axis=0)
+            mean = np.mean(mean, axis=0)
+            activations[label][l] = mean
+
+    with open('/home/clionaodoherty/mean_activations.pickle', 'wb') as handle:
+        pickle.dump(activations, handle)
