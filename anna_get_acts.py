@@ -94,6 +94,7 @@ if __name__ == '__main__':
     model.cuda()
     image_pth = '/home/clionaodoherty/imagenet_samples/' 
     act = get_activations(image_pth)
+    print('activations computed')
 
     with open('/home/clionaodoherty/CMC/category_dict.pickle','rb') as f:
         categories= pickle.load(f)
@@ -112,6 +113,7 @@ if __name__ == '__main__':
                 for idx, l in enumerate(layers):
                     activations[label][l].append(activation_list[idx])
 
+    print('calculating mean activations')
     for label in categories:
         for l in layers:
             mean = activations[label][l][0]
@@ -119,6 +121,7 @@ if __name__ == '__main__':
                 mean = np.concatenate((mean,i), axis=0)
             mean = np.mean(mean, axis=0)
             activations[label][l] = mean
+    print('done ... saving')
 
-    with open('/home/clionaodoherty/random_weight_activations.pickle', 'wb') as handle:
+    with open('/home/clionaodoherty/CMC/activations/random_weight_activations.pickle', 'wb') as handle:
         pickle.dump(activations, handle)
