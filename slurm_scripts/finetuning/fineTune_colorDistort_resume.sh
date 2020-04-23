@@ -17,4 +17,4 @@ python3 /home/clionaodoherty/CMC/train_CMC.py \
     --lr_decay_epochs 30,50,70 \
     --epochs 80 \
     --distort True \
-    --resume data/movie-associations/saves/temporal/finetune10sec/movie-training-distorted/pretrained_memory_nce_16384_alexnet_lr_0.03_decay_0.0001_bsz_128_sec_10_view_temporal/ckpt_epoch_77.pth
+    --resume /data/movie-associations/saves/temporal/finetune10sec/movie-training-distorted/pretrained_memory_nce_16384_alexnet_lr_0.03_decay_0.0001_bsz_128_sec_10_view_temporal/ckpt_epoch_77.pth
