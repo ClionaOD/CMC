@@ -1,4 +1,5 @@
 import pickle
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -8,45 +9,52 @@ from scipy import stats
 import pandas as pd
 import collections
 
-def hierarchical_clustering(matrix, label_list, outpath=None):
-    fig,ax = plt.subplots(figsize=(10,10))
-    dend = sch.dendrogram(sch.linkage(matrix, method='ward'), 
-        ax=ax, 
-        labels=label_list, 
-        orientation='left'
-    )
-    ax.tick_params(axis='x', labelsize=4)
-    if outpath:
-        plt.savefig(outpath)
-    plt.close()
-
-    cluster_order = dend['ivl']
-
-    return cluster_order
-
-with open('./mean_activations.pickle','rb') as f:
-    activations = pickle.load(f)
-
+chosenCategs = ['coat', 'suit', 'prison', 'plant']
 layers = ['conv1', 'conv2', 'conv3', 'conv4', 'conv5', 'fc6', 'fc7']
 chosenLayer = 'conv5'
 
-layer_dict = collections.OrderedDict((k,list(v.values())[layers.index(chosenLayer)]) for k,v in activations.items())
+fig, ((ax1,ax2),(ax3,ax4),(ax5,ax6)) = plt.subplots(nrows=3, ncols=2)
 
-df = pd.DataFrame()
-for k,v in layer_dict.items():
-    if not layers.index(chosenLayer) > 4:
-        s = pd.Series(np.mean(layer_dict[k], axis=(1,2)))
-        df[k] = s
+for file in os.listdir('./activations'):
+    with open('./activations/{}'.format(file),'rb') as f:
+        activations = pickle.load(f)
+
+    activations = {k:activations[k] for k in chosenCategs}
+
+    layer_dict = collections.OrderedDict((k,list(v.values())[layers.index(chosenLayer)]) for k,v in activations.items())
+
+    df = pd.DataFrame()
+    for k,v in layer_dict.items():
+        if not layers.index(chosenLayer) > 4:
+            s = pd.Series(np.mean(layer_dict[k], axis=(1,2)))
+            df[k] = s
+        else:
+            s = pd.Series(layer_dict[k])
+            df[k] = s
+
+    rdm = ssd.pdist(df.values.T)
+    rdm = ssd.squareform(rdm)
+
+    rdm_df = pd.DataFrame(rdm, columns=list(layer_dict.keys()), index=list(layer_dict.keys()))
+
+    title = file.split('_')[0]
+    if 'random' in title:
+        ax = sns.heatmap(rdm_df, vmax=0.3, ax=ax1)
+        ax.set_title(title)
+    elif 'lab' in title:
+        ax = sns.heatmap(rdm_df, vmax=0.3, ax=ax2)
+        ax.set_title(title)
+    elif '1sec' in title:
+        ax = sns.heatmap(rdm_df, vmax=0.3, ax=ax3)
+        ax.set_title(title)
+    elif '10sec' in title:
+        ax = sns.heatmap(rdm_df, vmax=0.3, ax=ax4)
+        ax.set_title(title)
+    elif '30sec' in title:
+        ax = sns.heatmap(rdm_df, vmax=0.3, ax=ax5)
+        ax.set_title(title)
     else:
-        s = pd.Series(layer_dict[k])
-        df[k] = s
+        ax = sns.heatmap(rdm_df, vmax=0.3, ax=ax6)
+        ax.set_title(title)
 
-rdm = ssd.pdist(df.values.T)
-rdm = ssd.squareform(rdm)
-
-rdm_df = pd.DataFrame(rdm, columns=list(layer_dict.keys()), index=list(layer_dict.keys()))
-reorder = hierarchical_clustering(rdm_df.values, list(rdm_df.columns))
-rdm_df = rdm_df.reindex(rdm_df, xticklabels=True, yticklabels=True)
-
-sns.heatmap(rdm_df)
 plt.show()
