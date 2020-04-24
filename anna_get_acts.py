@@ -87,7 +87,7 @@ def get_activations(offset):
 
 
 if __name__ == '__main__':
-    modelpth = '/data/movie-associations/randomweight_temporalCMC.pth'
+    modelpth = '/data/movie-associations/Lab_pretrained_fullAlexNetCMC.pth'
     checkpoint = torch.load(modelpth)#['model']
 
     model = TemporalAlexNetCMC()
@@ -124,5 +124,5 @@ if __name__ == '__main__':
             activations[label][l] = mean
     print('done ... saving')
 
-    with open('/home/clionaodoherty/CMC/activations/random_distort_activations.pickle', 'wb') as handle:
+    with open('/home/clionaodoherty/CMC/activations/lab_distort_activations.pickle', 'wb') as handle:
         pickle.dump(activations, handle)
