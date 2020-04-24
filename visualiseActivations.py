@@ -13,7 +13,8 @@ chosenCategs = ['coat', 'suit', 'prison', 'plant']
 layers = ['conv1', 'conv2', 'conv3', 'conv4', 'conv5', 'fc6', 'fc7']
 chosenLayer = 'conv5'
 
-fig, ((ax1,ax2),(ax3,ax4),(ax5,ax6)) = plt.subplots(nrows=3, ncols=2)
+fig, ((ax1,ax2),(ax3,ax4),(ax5,ax6)) = plt.subplots(nrows=3, ncols=2, figsize=(8.27,11.69))
+fig.subplots_adjust(wspace=0.4, hspace=0.5)
 
 for file in os.listdir('./activations'):
     with open('./activations/{}'.format(file),'rb') as f:
@@ -39,22 +40,28 @@ for file in os.listdir('./activations'):
 
     title = file.split('_')[0]
     if 'random' in title:
-        ax = sns.heatmap(rdm_df, vmax=0.3, ax=ax1)
-        ax.set_title(title)
+        ax = sns.heatmap(rdm_df, ax=ax1)
+        ax.set_title('Random Weights Network', pad=2)
+        ax.tick_params('y',labelrotation=35)
     elif 'lab' in title:
-        ax = sns.heatmap(rdm_df, vmax=0.3, ax=ax2)
-        ax.set_title(title)
+        ax = sns.heatmap(rdm_df,  ax=ax2)
+        ax.set_title('Lab Trained Network', pad=2)
+        ax.tick_params('y',labelrotation=35)
     elif '1sec' in title:
-        ax = sns.heatmap(rdm_df, vmax=0.3, ax=ax3)
-        ax.set_title(title)
+        ax = sns.heatmap(rdm_df,  ax=ax3)
+        ax.set_title('Finetuned - 1 sec Lag', pad=2)
+        ax.tick_params('y',labelrotation=35)
     elif '10sec' in title:
-        ax = sns.heatmap(rdm_df, vmax=0.3, ax=ax4)
-        ax.set_title(title)
+        ax = sns.heatmap(rdm_df,  ax=ax4)
+        ax.set_title('Finetuned - 10 sec Lag', pad=2)
+        ax.tick_params('y',labelrotation=35)
     elif '30sec' in title:
-        ax = sns.heatmap(rdm_df, vmax=0.3, ax=ax5)
-        ax.set_title(title)
+        ax = sns.heatmap(rdm_df,  ax=ax5)
+        ax.set_title('Finetuned - 30 sec Lag', pad=2)
+        ax.tick_params('y',labelrotation=35)
     else:
-        ax = sns.heatmap(rdm_df, vmax=0.3, ax=ax6)
-        ax.set_title(title)
+        ax = sns.heatmap(rdm_df,  ax=ax6)
+        ax.set_title('Finetuned - 60 sec Lag', pad=2)
+        ax.tick_params('y',labelrotation=35)
 
 plt.show()
