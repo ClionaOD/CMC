@@ -87,7 +87,7 @@ def get_activations(offset):
 
 
 if __name__ == '__main__':
-    modelpth = '/data/movie-associations/saves/temporal/finetune30sec/movie-training-distorted/pretrained_memory_nce_16384_alexnet_lr_0.03_decay_0.0001_bsz_128_sec_30_view_temporal/ckpt_epoch_80.pth'
+    modelpth = '/data/movie-associations/saves/temporal/finetune30sec/movie-training-distorted/memory_nce_16384_alexnet_lr_0.03_decay_0.0001_bsz_128_sec_30_view_temporal/ckpt_epoch_80.pth'
     checkpoint = torch.load(modelpth)['model']
 
     model = TemporalAlexNetCMC()
