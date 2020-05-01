@@ -32,7 +32,7 @@ def hierarchical_clustering(matrix, label_list, outpath=None):
     return cluster_order
 
 #choose items and create dict of their clusters
-chosenCategs = ['gown', 'hair', 'suit', 'coat', 'tie', 'screen', 'table', 'food', 'restaurant', 'glass', 'alcohol', 'wine', 'lamp', 'couch', 'chair', 'closet', 'shirt', 'sunglasses', 'piano', 'window', 'bannister', 'pillow', 'desk', 'computer', 'shoe']
+chosenCategs = ['gown', 'hair', 'suit', 'coat', 'tie', 'shirt', 'sunglasses', 'shoe', 'screen', 'computer', 'table', 'food', 'restaurant', 'glass', 'alcohol', 'wine', 'lamp', 'couch', 'chair', 'closet', 'piano', 'pillow', 'desk', 'window', 'bannister']
 clusters = {}
 with open('./global_categs.pickle', 'rb') as f:
     categories = pickle.load(f)
@@ -45,11 +45,21 @@ layers = ['conv1', 'conv2', 'conv3', 'conv4', 'conv5', 'fc6', 'fc7']
 chosenLayer = 'conv5'
 
 #set RDM and MDS figures
-fig1, ((ax1,ax2),(ax3,ax4),(ax5,ax6)) = plt.subplots(nrows=3, ncols=2, figsize=(8.27,11.69))
-fig1.subplots_adjust(wspace=0.4, hspace=0.5)
+fig1, ((ax1,ax2,ax3),(ax4,ax5,ax6)) = plt.subplots(
+    nrows=2, 
+    ncols=3,
+    figsize=(11.69,8.27)
+)
+fig1.subplots_adjust(wspace=0.4, hspace=0.8)
 
-fig2, ((axs1,axs2),(axs3,axs4),(axs5,axs6)) = plt.subplots(nrows=3, ncols=2, figsize=(8.27,11.69))
-fig2.subplots_adjust(wspace=0.4, hspace=0.5)
+fig2, ((leg,axs1,axs2),(b1,axs3,axs4),(b2,axs5,axs6)) = plt.subplots(
+    nrows=3, 
+    ncols=3, 
+    figsize=(8.27,11.69), 
+    gridspec_kw={'width_ratios': [0.1,5,5]}
+)
+b1.axis('off')
+b2.axis('off')
 
 ref = False
 align = np.array([])
@@ -91,17 +101,16 @@ for file in os.listdir('./activations'):
         df_embedding = pd.DataFrame(mtx2, index=rdm.index)
 
     colour_column = [clusters[k] for k,v in df_embedding.iterrows()]
-    df_embedding['cluster'] = colour_column
+    df_embedding['category'] = colour_column
 
     #reindex rdm by category membership
-    order = list(df_embedding.sort_values(by='cluster').index)
-    rdm = rdm.reindex(index=order, columns=order)
+    rdm = rdm.reindex(index=chosenCategs, columns=chosenCategs)
 
     #create binary model rdm - 0 indicates within category partner and 1 across
-    model_rdm = pd.DataFrame(data=np.ones((25,25)),index=order, columns=order)
+    model_rdm = pd.DataFrame(data=np.ones((25,25)),index=chosenCategs, columns=chosenCategs)
     for k1, v1 in df_embedding.iterrows():
         for k2, v2 in df_embedding.iterrows():
-            if v1['cluster'] == v2['cluster']:
+            if v1['category'] == v2['category']:
                 model_rdm.loc[k1][k2] = 0
                 model_rdm.loc[k2][k1] = 0
     np.fill_diagonal(model_rdm.values, 0)   
@@ -113,67 +122,80 @@ for file in os.listdir('./activations'):
     #plot RDMs and MDS
     if 'random' in title:
         ax = sns.heatmap(rdm, ax=ax1)
-        ax.set_title('Random Weights Network', pad=2)
-        ax.tick_params('y',labelrotation=35, labelsize='small')
-        ax.tick_params('x',labelrotation=35,labelsize='small')
+        ax.set_title('Random weights', fontsize=10)
+        ax.tick_params('y',labelsize=8)
+        ax.tick_params('x', labelsize=7)
 
-        sns.scatterplot(x=df_embedding[0],y=df_embedding[1],hue=df_embedding['cluster'], ax=axs1)
-        axs1.set_title('Random')
+        sns.scatterplot(x=df_embedding[0],y=df_embedding[1],hue=df_embedding['category'], ax=axs1)
+        axs1.set_title('Random weights')
         axs1.set_xlabel(' ')
         axs1.set_ylabel(' ')
+        axs1.axis('equal')
     elif 'lab' in title:
         ax = sns.heatmap(rdm,  ax=ax2)
-        ax.set_title('Lab Trained Network', pad=2)
-        ax.tick_params('y',labelrotation=35, labelsize='small')
-        ax.tick_params('x',labelrotation=35,labelsize='small')
+        ax.set_title('Lab trained', fontsize=10)
+        ax.tick_params('y',labelsize=8)
+        ax.tick_params('x', labelsize=7)
 
-        sns.scatterplot(x=df_embedding[0],y=df_embedding[1],hue=df_embedding['cluster'], legend=False,  ax=axs2)
-        axs2.set_title('Lab')
+        sns.scatterplot(x=df_embedding[0],y=df_embedding[1],hue=df_embedding['category'], legend=False,  ax=axs2)
+        axs2.set_title('Lab trained')
         axs2.set_xlabel(' ')
         axs2.set_ylabel(' ')
+        axs2.axis('equal')
     elif '1sec' in title:
         ax = sns.heatmap(rdm,  ax=ax3)
-        ax.set_title('Finetuned - 1 sec Lag', pad=2)
-        ax.tick_params('y',labelrotation=35, labelsize='small')
-        ax.tick_params('x',labelrotation=35,labelsize='small')
+        ax.set_title('Finetuned - 1 sec lag', fontsize=10)
+        ax.tick_params('y',labelsize=8)
+        ax.tick_params('x', labelsize=7)
 
-        sns.scatterplot(x=df_embedding[0],y=df_embedding[1],hue=df_embedding['cluster'], legend=False,  ax=axs3)
-        axs3.set_title('1sec')
+        sns.scatterplot(x=df_embedding[0],y=df_embedding[1],hue=df_embedding['category'], legend=False,  ax=axs3)
+        axs3.set_title('1sec finetuned')
         axs3.set_xlabel(' ')
         axs3.set_ylabel(' ')
+        axs3.axis('equal')
     elif '10sec' in title:
         ax = sns.heatmap(rdm,  ax=ax4)
-        ax.set_title('Finetuned - 10 sec Lag', pad=2)
-        ax.tick_params('y',labelrotation=35, labelsize='small')
-        ax.tick_params('x',labelrotation=35,labelsize='small')
+        ax.set_title('Finetuned - 10 sec lag', fontsize=10)
+        ax.tick_params('y',labelsize=8)
+        ax.tick_params('x', labelsize=7)
 
-        sns.scatterplot(x=df_embedding[0],y=df_embedding[1],hue=df_embedding['cluster'], legend=False,  ax=axs4)
-        axs4.set_title('10sec')
+        sns.scatterplot(x=df_embedding[0],y=df_embedding[1],hue=df_embedding['category'], legend=False,  ax=axs4)
+        axs4.set_title('10sec finetuned')
         axs4.set_xlabel(' ')
         axs4.set_ylabel(' ')
+        axs4.axis('equal')
     elif '30sec' in title:
         ax = sns.heatmap(rdm,  ax=ax5)
-        ax.set_title('Finetuned - 30 sec Lag', pad=2)
-        ax.tick_params('y',labelrotation=35, labelsize='small')
-        ax.tick_params('x',labelrotation=35,labelsize='small')
+        ax.set_title('Finetuned - 30 sec lag', fontsize=10)
+        ax.tick_params('y',labelsize=8)
+        ax.tick_params('x', labelsize=7)
 
-        sns.scatterplot(x=df_embedding[0],y=df_embedding[1],hue=df_embedding['cluster'], legend=False,  ax=axs5)
-        axs5.set_title('30sec')
+        sns.scatterplot(x=df_embedding[0],y=df_embedding[1],hue=df_embedding['category'], legend=False,  ax=axs5)
+        axs5.set_title('30sec finetune')
         axs5.set_xlabel(' ')
         axs5.set_ylabel(' ')
+        axs5.axis('equal')
     else:
         ax = sns.heatmap(rdm,  ax=ax6)
-        ax.set_title('Finetuned - 60 sec Lag', pad=2)
-        ax.tick_params('y',labelrotation=35, labelsize='small')
-        ax.tick_params('x',labelrotation=35,labelsize='small')
+        ax.set_title('Finetuned - 60 sec lag', fontsize=10)
+        ax.tick_params('y',labelsize=8)
+        ax.tick_params('x', labelsize=7)
 
-        sns.scatterplot(x=df_embedding[0],y=df_embedding[1],hue=df_embedding['cluster'], legend=False,  ax=axs6)
-        axs6.set_title('60sec')
+        sns.scatterplot(x=df_embedding[0],y=df_embedding[1],hue=df_embedding['category'], legend=False,  ax=axs6)
+        axs6.set_title('60sec finetuned')
         axs6.set_xlabel(' ')
         axs6.set_ylabel(' ')
+        axs6.axis('equal')
+
 
 handles, labels = axs1.get_legend_handles_labels()
 axs1.get_legend().remove()
-fig2.legend(handles, labels, loc='upper left')
+leg.legend(handles, labels)
+leg.axis('off')
+
+plt.tight_layout()
+fig1.savefig('/home/clionaodoherty/Desktop/cmc_figs/nice/rdms.pdf')
+fig2.savefig('/home/clionaodoherty/Desktop/cmc_figs/nice/mds.pdf')
 plt.show()
+
 #plt.close()
