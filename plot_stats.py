@@ -10,6 +10,8 @@ import scipy.spatial.distance as ssd
 from scipy import stats
 from skbio.stats.distance import mantel
 
+act_path = './activations/lab_in_distort'
+
 chosenCategs = ['gown', 'hair', 'suit', 'coat', 'tie', 'shirt', 'sunglasses', 'shoe', 'screen', 'computer', 'table', 'food', 'restaurant', 'glass', 'alcohol', 'wine', 'lamp', 'couch', 'chair', 'closet', 'piano', 'pillow', 'desk', 'window', 'bannister']
 clusters = {}
 with open('./global_categs.pickle', 'rb') as f:
@@ -21,14 +23,15 @@ for k, lst in categories.items():
 #choose the layer to evaluate
 layers = ['conv1', 'conv2', 'conv3', 'conv4', 'conv5', 'fc6', 'fc7']
 
-stats_df = pd.DataFrame(index=[file.split('_')[0] for file in os.listdir('./activations')], columns=layers)
-sig_df = pd.DataFrame(index=[file.split('_')[0] for file in os.listdir('./activations')], columns=layers)
+stats_df = pd.DataFrame(index=[file.split('_')[0] for file in os.listdir(act_path)], columns=layers)
+sig_df = pd.DataFrame(index=[file.split('_')[0] for file in os.listdir(act_path)], columns=layers)
+
 for idx, x in enumerate(layers):
     chosenLayer = x
-    for file in os.listdir('./activations'):
+    for file in os.listdir(act_path):
         title = file.split('_')[0]
 
-        with open('./activations/{}'.format(file),'rb') as f:
+        with open('{}/{}'.format(act_path,file),'rb') as f:
             activations = pickle.load(f)
 
         #limit to chosen categories & chosen layer
@@ -91,8 +94,3 @@ sigs=list(zip(np.where(sig_df==1)[0], np.where(sig_df==1)[1]))
 for x in sigs:
     anot = (x[1] , stats_df.iloc[x[0]][x[1]])
     ax1.annotate('*', anot)
-
-
-
-
-print('wait')
