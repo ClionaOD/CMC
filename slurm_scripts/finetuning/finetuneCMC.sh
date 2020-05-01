@@ -13,6 +13,6 @@ python3 /home/clionaodoherty/CMC/train_CMC.py \
     --tb_path /home/clionaodoherty/CMC/tensorboard/finetune/10sec \
     --time_lag 10 \
     --view temporal \
-    --pretrained /home/clionaodoherty/movie-associations/saves/Lab_pretrained_fullAlexNet.pth \
+    --pretrained /data/movie-associations/saves/Lab_pretrained_fullAlexNet.pth \
     --lr_decay_epochs 30,50,70 \
     --epochs 80 
