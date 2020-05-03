@@ -67,7 +67,7 @@ def compute_features(dataloader, model, N):
 def get_activations(offset):
     mean = [(0 + 100) / 2, (-86.183 + 98.233) / 2, (-107.857 + 94.478) / 2]
     std = [(100 - 0) / 2, (86.183 + 98.233) / 2, (107.857 + 94.478) / 2]
-    color_transfer = get_color_distortion()
+    color_transfer = RGB2Lab()
     normalize = transforms.Normalize(mean=mean, std=std)
     train_transform = transforms.Compose([
         transforms.RandomResizedCrop(224, scale=(0.2, 1.)),
@@ -124,5 +124,5 @@ if __name__ == '__main__':
             activations[label][l] = mean
     print('done ... saving')
 
-    with open('/home/clionaodoherty/CMC/activations/1sec_lab_activations.pickle', 'wb') as handle:
+    with open('/home/clionaodoherty/CMC/activations/temporal_lab/1sec_lab_activations.pickle', 'wb') as handle:
         pickle.dump(activations, handle)
