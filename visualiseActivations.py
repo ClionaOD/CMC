@@ -31,6 +31,8 @@ def hierarchical_clustering(matrix, label_list, outpath=None):
 
     return cluster_order
 
+act_path = './activations/temporal_lab'
+
 #choose items and create dict of their clusters
 chosenCategs = ['gown', 'hair', 'suit', 'coat', 'tie', 'shirt', 'sunglasses', 'shoe', 'screen', 'computer', 'table', 'food', 'restaurant', 'glass', 'alcohol', 'wine', 'lamp', 'couch', 'chair', 'closet', 'piano', 'pillow', 'desk', 'window', 'bannister']
 clusters = {}
@@ -65,10 +67,10 @@ ref = False
 align = np.array([])
 
 #plot activations
-for file in os.listdir('./activations'):
+for file in os.listdir(act_path):
     title = file.split('_')[0]
 
-    with open('./activations/{}'.format(file),'rb') as f:
+    with open('{}/{}'.format(act_path,file),'rb') as f:
         activations = pickle.load(f)
 
     #limit to chosen categories & chosen layer
@@ -194,8 +196,8 @@ leg.legend(handles, labels)
 leg.axis('off')
 
 plt.tight_layout()
-fig1.savefig('/home/clionaodoherty/Desktop/cmc_figs/nice/rdms.pdf')
-fig2.savefig('/home/clionaodoherty/Desktop/cmc_figs/nice/mds.pdf')
+#fig1.savefig('/home/clionaodoherty/Desktop/cmc_figs/nice/rdms.pdf')
+#fig2.savefig('/home/clionaodoherty/Desktop/cmc_figs/nice/mds.pdf')
 plt.show()
 
 #plt.close()
