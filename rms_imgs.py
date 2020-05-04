@@ -27,7 +27,7 @@ train_transform = transforms.ToTensor()
 
 rms_lags = {}
 
-for lag in range(0,65,5):
+for lag in np.linspace(1,36000,20,dtype=int):
     print('==> calculating lag {}'.format(lag))
     
     train_dataset = twoImageFolderInstance(data_folder, time_lag=lag, transform=train_transform)
