@@ -39,9 +39,7 @@ for lag in range(0,65,5):
 
     rms_dict = {}
 
-    for idx, [(inputs1, path1, index), (inputs2, path2, lagged_index)] in enumerate(train_loader):
-        print(path1)
-        #while index < 1000:    
+    for idx, [(inputs1, path1, index), (inputs2, path2, lagged_index)] in enumerate(train_loader):  
         categ = path1[0].split('/')[-2]
         if not categ in rms_dict:
             rms_dict[categ] = []
@@ -57,5 +55,5 @@ for lag in range(0,65,5):
     rms_lags[str(lag)] = np.mean(list(rms_dict.values()))
 
 df = pd.DataFrame.from_dict(rms_lags, orient='index')
-plt.plot(df)
-plt.show()
+with open('/home/clionaodoherty/CMC/rms.pickle','wb') as f:
+    pickle.dump(df,f)
