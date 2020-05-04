@@ -20,7 +20,8 @@ def rmsdiff(im1, im2):
     rms = math.sqrt(sum_of_squares/float(im1.size[0] * im1.size[1]))
     return rms
 
-data_folder = '/data/movie-associations/train/'
+#data_folder = '/data/movie-associations/train/'
+data_folder = '/home/clionaodoherty/Desktop/fyp2020/stimuli/'
 
 train_transform = transforms.ToTensor()
 
@@ -30,10 +31,10 @@ for lag in range(0,65,5):
     print('==> calculating lag {}'.format(lag))
     
     train_dataset = twoImageFolderInstance(data_folder, time_lag=lag, transform=train_transform)
-
+    train_sampler = torch.utils.data.RandomSampler(train_dataset, replacement=True, num_samples=1000)
     # train loader
     train_loader = torch.utils.data.DataLoader(
-        train_dataset, batch_size=1)
+        train_dataset, batch_size=1,sampler=train_sampler)
 
     n_data = len(train_dataset)
     print('number of samples: {}'.format(n_data))
