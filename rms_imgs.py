@@ -20,8 +20,8 @@ def rmsdiff(im1, im2):
     rms = math.sqrt(sum_of_squares/float(im1.size[0] * im1.size[1]))
     return rms
 
-#data_folder = '/data/movie-associations/train/'
-data_folder = '/home/clionaodoherty/Desktop/fyp2020/stimuli/'
+data_folder = '/data/movie-associations/train/'
+#data_folder = '/home/clionaodoherty/Desktop/fyp2020/stimuli/'
 
 train_transform = transforms.ToTensor()
 
