@@ -10,7 +10,7 @@ import scipy.spatial.distance as ssd
 from scipy import stats
 from skbio.stats.distance import mantel
 
-act_path = './activations/lab_in_distort'
+act_path = './activations/temporal_lab/act_only'
 
 chosenCategs = ['gown', 'hair', 'suit', 'coat', 'tie', 'shirt', 'sunglasses', 'shoe', 'screen', 'computer', 'table', 'food', 'restaurant', 'glass', 'alcohol', 'wine', 'lamp', 'couch', 'chair', 'closet', 'piano', 'pillow', 'desk', 'window', 'bannister']
 clusters = {}
@@ -19,17 +19,29 @@ with open('./global_categs.pickle', 'rb') as f:
 for k, lst in categories.items():
     for label in lst:
         clusters[label] = k
+clusters = {k:v for k,v in clusters.items() if k in chosenCategs}
+cluster_df = pd.DataFrame.from_dict(clusters, orient='index')
+
+#create binary model rdm - 0 indicates within category partner and 1 across
+model_rdm = pd.DataFrame(data=np.ones((25,25)),index=chosenCategs, columns=chosenCategs)
+for k1, v1 in cluster_df.iterrows():
+    for k2, v2 in cluster_df.iterrows():
+        if v1[0] == v2[0]:
+            model_rdm.loc[k1][k2] = 0
+            model_rdm.loc[k2][k1] = 0
+np.fill_diagonal(model_rdm.values, 0)
 
 #choose the layer to evaluate
 layers = ['conv1', 'conv2', 'conv3', 'conv4', 'conv5', 'fc6', 'fc7']
 
-stats_df = pd.DataFrame(index=[file.split('_')[0] for file in os.listdir(act_path)], columns=layers)
-sig_df = pd.DataFrame(index=[file.split('_')[0] for file in os.listdir(act_path)], columns=layers)
+stats_df = pd.DataFrame(index=[file.split('_')[0].split('.')[0] for file in os.listdir(act_path)], columns=layers)
+sig_df = pd.DataFrame(index=[file.split('_')[0].split('.')[0] for file in os.listdir(act_path)], columns=layers)
 
 for idx, x in enumerate(layers):
     chosenLayer = x
     for file in os.listdir(act_path):
         title = file.split('_')[0]
+        title = title.split('.')[0]
 
         with open('{}/{}'.format(act_path,file),'rb') as f:
             activations = pickle.load(f)
@@ -47,17 +59,7 @@ for idx, x in enumerate(layers):
             else:
                 s = pd.Series(layer_dict[k])
                 df[k] = s
-
-        #set categories
-        clusters = {}
-        with open('./global_categs.pickle', 'rb') as f:
-            categories = pickle.load(f)
-        for k, lst in categories.items():
-            for label in lst:
-                clusters[label] = k
-        clusters = {k:v for k,v in clusters.items() if k in chosenCategs}
-        cluster_df = pd.DataFrame.from_dict(clusters, orient='index')
-
+        
         #calculate rdm with euclidean distance
         rdm = ssd.pdist(df.values.T)
         rdm = ssd.squareform(rdm)
@@ -65,15 +67,6 @@ for idx, x in enumerate(layers):
 
         #reindex rdm by category membership
         rdm = rdm.reindex(index=chosenCategs, columns=chosenCategs)   
-
-        #create binary model rdm - 0 indicates within category partner and 1 across
-        model_rdm = pd.DataFrame(data=np.ones((25,25)),index=chosenCategs, columns=chosenCategs)
-        for k1, v1 in cluster_df.iterrows():
-            for k2, v2 in cluster_df.iterrows():
-                if v1[0] == v2[0]:
-                    model_rdm.loc[k1][k2] = 0
-                    model_rdm.loc[k2][k1] = 0
-        np.fill_diagonal(model_rdm.values, 0)
 
         #statistical testing of category effect using kendall tau correlation and Mantel test
         corr, pval, n = mantel(rdm.values, model_rdm.values, method='kendalltau')
@@ -94,3 +87,6 @@ sigs=list(zip(np.where(sig_df==1)[0], np.where(sig_df==1)[1]))
 for x in sigs:
     anot = (x[1] , stats_df.iloc[x[0]][x[1]])
     ax1.annotate('*', anot)
+
+#plt.savefig('/home/clionaodoherty/Desktop/cmc_figs/stats/temp_train_lab_act.pdf')
+plt.show()
