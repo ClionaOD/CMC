@@ -27,7 +27,10 @@ train_transform = transforms.ToTensor()
 
 rms_lags = {}
 
-for lag in np.linspace(1,36000,20,dtype=int):
+lags = list(np.linspace(0,60,25,dtype=int))
+lags.extend(np.linspace(60,36000,15,dtype=int))
+
+for lag in lags:
     print('==> calculating lag {}'.format(lag))
     
     train_dataset = twoImageFolderInstance(data_folder, time_lag=lag, transform=train_transform)
@@ -57,5 +60,17 @@ for lag in np.linspace(1,36000,20,dtype=int):
     rms_lags[str(lag)] = np.mean(list(rms_dict.values()))
 
 df = pd.DataFrame.from_dict(rms_lags, orient='index')
-with open('/home/clionaodoherty/CMC/rms.pickle','wb') as f:
+with open('/home/clionaodoherty/CMC/rms_1min.pickle','wb') as f:
     pickle.dump(df,f)
+"""
+import pickle
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+with open('./rms.pickle','rb') as f:
+    rms=pickle.load(f)
+
+plt.plot(rms * -1)
+plt.show()
+"""
