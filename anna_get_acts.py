@@ -27,6 +27,18 @@ from models.alexnet import TemporalAlexNetCMC
 from train_CMC import get_color_distortion
 
 
+def parse_option():
+
+    parser = argparse.ArgumentParser('argument for activations')
+
+    parser.add_argument('--model_path', type=str, help='model to get activations of')
+    parser.add_argument('--save_path', type=str, help='path to save activations')
+    parser.add_argument('--transform', type=str, choices=['Lab','distort'], help='color transform to use')
+
+    opt = parser.parse_args()
+
+    return opt
+
 class ImageFolderWithPaths(datasets.ImageFolder):
     """Custom dataset that includes image file paths. Extends
     torchvision.datasets.ImageFolder
@@ -64,10 +76,13 @@ def compute_features(dataloader, model, N):
             act[label[0]] = _model_feats
     return act
 
-def get_activations(offset):
+def get_activations(offset, args):
     mean = [(0 + 100) / 2, (-86.183 + 98.233) / 2, (-107.857 + 94.478) / 2]
     std = [(100 - 0) / 2, (86.183 + 98.233) / 2, (107.857 + 94.478) / 2]
-    color_transfer = RGB2Lab()
+    if args.transform == 'Lab':
+        color_transfer = RGB2Lab()
+    else:
+        color_transfer = get_color_distortion()
     normalize = transforms.Normalize(mean=mean, std=std)
     train_transform = transforms.Compose([
         transforms.RandomResizedCrop(224, scale=(0.2, 1.)),
@@ -87,14 +102,16 @@ def get_activations(offset):
 
 
 if __name__ == '__main__':
-    modelpth = '/data/movie-associations/saves/temporal/finetune30sec/movie-training-30sec/pretrained_memory_nce_16384_alexnet_lr_0.03_decay_0.0001_bsz_128_sec_30_view_temporal/ckpt_epoch_80.pth'
+    args = parse_option()
+
+    modelpth = args.model_path
     checkpoint = torch.load(modelpth)['model']
 
     model = TemporalAlexNetCMC()
     model.load_state_dict(checkpoint)
     model.cuda()
     image_pth = '/home/clionaodoherty/imagenet_samples/' 
-    act = get_activations(image_pth)
+    act = get_activations(image_pth, args)
     print('activations computed')
 
     with open('/home/clionaodoherty/CMC/category_dict.pickle','rb') as f:
@@ -124,5 +141,5 @@ if __name__ == '__main__':
             activations[label][l] = mean
     print('done ... saving')
 
-    with open('/home/clionaodoherty/CMC/activations/temporal_lab/30sec_lab_activations.pickle', 'wb') as handle:
+    with open(args.save_path, 'wb') as handle:
         pickle.dump(activations, handle)
