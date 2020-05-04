@@ -64,7 +64,7 @@ class twoImageFolderInstance(datasets.ImageFolder):
         path1, target1 = self.imgs[index]
         image1 = self.loader(path1)
         if self.transform is not None:
-            img1 = self.transform(image1)
+            image1 = self.transform(image1)
         if self.target_transform is not None:
             target1 = self.target_transform(target1)
         
@@ -72,11 +72,11 @@ class twoImageFolderInstance(datasets.ImageFolder):
         path2, target2 = self.imgs[lagged_index]
         image2 = self.loader(path2)
         if self.transform is not None:
-            img2 = self.transform(image2)
+            image2 = self.transform(image2)
         if self.target_transform is not None:
             target2 = self.target_transform(target2)
         
-        return (img1,target1,index) , (img2,target2,lagged_index)
+        return (image1,path1,index) , (image2,path2,lagged_index)
 
 
 class RGB2Lab(object):
