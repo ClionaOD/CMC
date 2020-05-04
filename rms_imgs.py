@@ -40,6 +40,7 @@ for lag in range(0,65,5):
     rms_dict = {}
 
     for idx, [(inputs1, path1, index), (inputs2, path2, lagged_index)] in enumerate(train_loader):
+        print(path1)
         while index < 1000:    
             categ = path1[0].split('/')[-2]
             if not categ in rms_dict:
