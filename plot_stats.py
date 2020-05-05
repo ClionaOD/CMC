@@ -10,7 +10,7 @@ import scipy.spatial.distance as ssd
 from scipy import stats
 from skbio.stats.distance import mantel
 
-act_path = './activations/temporal_lab/act_only'
+act_path = './activations/temporal_lab/'
 
 chosenCategs = ['gown', 'hair', 'suit', 'coat', 'tie', 'shirt', 'sunglasses', 'shoe', 'screen', 'computer', 'table', 'food', 'restaurant', 'glass', 'alcohol', 'wine', 'lamp', 'couch', 'chair', 'closet', 'piano', 'pillow', 'desk', 'window', 'bannister']
 clusters = {}
@@ -34,47 +34,50 @@ np.fill_diagonal(model_rdm.values, 0)
 #choose the layer to evaluate
 layers = ['conv1', 'conv2', 'conv3', 'conv4', 'conv5', 'fc6', 'fc7']
 
-stats_df = pd.DataFrame(index=[file.split('_')[0].split('.')[0] for file in os.listdir(act_path)], columns=layers)
-sig_df = pd.DataFrame(index=[file.split('_')[0].split('.')[0] for file in os.listdir(act_path)], columns=layers)
+stats_df = pd.DataFrame(index=[file.split('_')[0].split('.')[0] for file in os.listdir(act_path) if not os.path.isdir('{}{}'.format(act_path,file))], columns=layers)
+sig_df = pd.DataFrame(index=[file.split('_')[0].split('.')[0] for file in os.listdir(act_path) if not os.path.isdir('{}{}'.format(act_path,file))], columns=layers)
 
 for idx, x in enumerate(layers):
     chosenLayer = x
     for file in os.listdir(act_path):
-        title = file.split('_')[0]
-        title = title.split('.')[0]
-
-        with open('{}/{}'.format(act_path,file),'rb') as f:
-            activations = pickle.load(f)
-
-        #limit to chosen categories & chosen layer
-        activations = {k:activations[k] for k in chosenCategs}
-        layer_dict = collections.OrderedDict((k,v[chosenLayer]) for k,v in activations.items())
-
-        #construct df and mean cross dimensions if necessary
-        df = pd.DataFrame()
-        for k,v in layer_dict.items():
-            if not layers.index(chosenLayer) > 4:
-                s = pd.Series(np.mean(layer_dict[k], axis=(1,2)))
-                df[k] = s
-            else:
-                s = pd.Series(layer_dict[k])
-                df[k] = s
-        
-        #calculate rdm with euclidean distance
-        rdm = ssd.pdist(df.values.T)
-        rdm = ssd.squareform(rdm)
-        rdm = pd.DataFrame(rdm, columns=list(layer_dict.keys()), index=list(layer_dict.keys()))
-
-        #reindex rdm by category membership
-        rdm = rdm.reindex(index=chosenCategs, columns=chosenCategs)   
-
-        #statistical testing of category effect using kendall tau correlation and Mantel test
-        corr, pval, n = mantel(rdm.values, model_rdm.values, method='kendalltau')
-        stats_df.loc[title][chosenLayer] = corr
-        if pval < (0.05 / 7):
-            sig_df.loc[title][chosenLayer] = 1
+        if os.path.isdir('{}{}'.format(act_path,file)):
+            continue
         else:
-            sig_df.loc[title][chosenLayer] = 0
+            title = file.split('_')[0]
+            title = title.split('.')[0]
+
+            with open('{}/{}'.format(act_path,file),'rb') as f:
+                activations = pickle.load(f)
+
+            #limit to chosen categories & chosen layer
+            activations = {k:activations[k] for k in chosenCategs}
+            layer_dict = collections.OrderedDict((k,v[chosenLayer]) for k,v in activations.items())
+
+            #construct df and mean cross dimensions if necessary
+            df = pd.DataFrame()
+            for k,v in layer_dict.items():
+                if not layers.index(chosenLayer) > 4:
+                    s = pd.Series(np.mean(layer_dict[k], axis=(1,2)))
+                    df[k] = s
+                else:
+                    s = pd.Series(layer_dict[k])
+                    df[k] = s
+            
+            #calculate rdm with euclidean distance
+            rdm = ssd.pdist(df.values.T)
+            rdm = ssd.squareform(rdm)
+            rdm = pd.DataFrame(rdm, columns=list(layer_dict.keys()), index=list(layer_dict.keys()))
+
+            #reindex rdm by category membership
+            rdm = rdm.reindex(index=chosenCategs, columns=chosenCategs)   
+
+            #statistical testing of category effect using kendall tau correlation and Mantel test
+            corr, pval, n = mantel(rdm.values, model_rdm.values, method='kendalltau')
+            stats_df.loc[title][chosenLayer] = corr
+            if pval < (0.05 / 7):
+                sig_df.loc[title][chosenLayer] = 1
+            else:
+                sig_df.loc[title][chosenLayer] = 0
 
 fig, (ax1,leg) = plt.subplots(nrows=1,ncols=2,gridspec_kw={'width_ratios': [1,.3]})
 stats_df.T.plot.line(ax=ax1)
