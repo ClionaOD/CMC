@@ -10,7 +10,7 @@ import scipy.spatial.distance as ssd
 from scipy import stats
 from skbio.stats.distance import mantel
 
-act_path = './activations/temporal_lab/'
+act_path = './activations/'
 
 chosenCategs = ['gown', 'hair', 'suit', 'coat', 'tie', 'shirt', 'sunglasses', 'shoe', 'screen', 'computer', 'table', 'food', 'restaurant', 'glass', 'alcohol', 'wine', 'lamp', 'couch', 'chair', 'closet', 'piano', 'pillow', 'desk', 'window', 'bannister']
 clusters = {}
