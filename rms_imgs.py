@@ -67,14 +67,31 @@ df = pd.DataFrame.from_dict(rms_lags, orient='index')
 #with open('/home/clionaodoherty/CMC/rms_1min.pickle','wb') as f:
 #    pickle.dump(df,f)
 
-#with open('./rms_1min.pickle','rb') as f:
-#    rms=pickle.load(f)
+with open('./rms_1min.pickle','rb') as f:
+    rms=pickle.load(f)
 
-fig, ax = plt.subplots()
-ax.plot(df[:25])
-ax.set_title('RMS*-1 of two images over increasing lags')
-ax.set_xlabel('lag in seconds')
-ax.set_ylabel('RMS difference')
-plt.tight_layout()
-plt.savefig('/home/clionaodoherty/Desktop/cmc_figs/img_rms.pdf')
+with open('/home/clionaodoherty/Desktop/associations/results/coefficients/R2_scores.pickle', 'rb') as f:
+    R2_scores=pickle.load(f)
+
+fig, (ax1,ax2) = plt.subplots(ncols=2, figsize=(11.69/1.25,8.27/1.5))
+fig.subplots_adjust(wspace=0.4)
+
+R2_arr = np.array(R2_scores)
+means = np.mean(R2_arr, axis=0)
+means = pd.DataFrame(means[:21], index=np.linspace(0,62,21,dtype=int))
+means.loc[62] = 0.006252
+ax1.plot(means)
+ax1.set_xlabel('lag in minutes')
+ax1.set_ylabel('R2 score')
+ax1.spines['top'].set_visible(False)
+ax1.spines['right'].set_visible(False)
+
+ax2.plot(-rms[:25])
+ax2.set_xlabel('lag in seconds')
+ax2.set(xticks=ax2.get_xticks()[::4])
+ax2.set_ylabel('- RMS difference')
+ax2.spines['top'].set_visible(False)
+ax2.spines['right'].set_visible(False)
+
+plt.savefig('/home/clionaodoherty/Desktop/cmc_figs/percept_vs_assoc.pdf')
 plt.show()
