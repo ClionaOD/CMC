@@ -31,7 +31,7 @@ def hierarchical_clustering(matrix, label_list, outpath=None):
 
     return cluster_order
 
-act_path = './activations/'
+act_path = './activations/temporal_lab/'
 
 #choose items and create dict of their clusters
 chosenCategs = ['gown', 'hair', 'suit', 'coat', 'tie', 'shirt', 'sunglasses', 'shoe', 'screen', 'computer', 'table', 'food', 'restaurant', 'glass', 'alcohol', 'wine', 'lamp', 'couch', 'chair', 'closet', 'piano', 'pillow', 'desk', 'window', 'bannister']

@@ -10,7 +10,7 @@ import scipy.spatial.distance as ssd
 from scipy import stats
 from skbio.stats.distance import mantel
 
-act_path = './activations/'
+act_path = './activations/main/'
 
 chosenCategs = ['gown', 'hair', 'suit', 'coat', 'tie', 'shirt', 'sunglasses', 'shoe', 'screen', 'computer', 'table', 'food', 'restaurant', 'glass', 'alcohol', 'wine', 'lamp', 'couch', 'chair', 'closet', 'piano', 'pillow', 'desk', 'window', 'bannister']
 clusters = {}
@@ -79,6 +79,8 @@ for idx, x in enumerate(layers):
             else:
                 sig_df.loc[title][chosenLayer] = 0
 
+stats_df = pd.DataFrame(stats_df.values, columns=stats_df.columns, index=['lab trained', 'random weights', '1sec finetuned', '60sec finetuned', '30sec finetuned', '10sec finetuned'])
+stats_df = stats_df.reindex(['lab trained', 'random weights', '1sec finetuned','10sec finetuned', '30sec finetuned', '60sec finetuned'])
 fig, (ax1,leg) = plt.subplots(nrows=1,ncols=2,gridspec_kw={'width_ratios': [1,.3]})
 stats_df.T.plot.line(ax=ax1)
 handles, labels = ax1.get_legend_handles_labels()
@@ -91,5 +93,5 @@ for x in sigs:
     anot = (x[1] , stats_df.iloc[x[0]][x[1]])
     ax1.annotate('*', anot)
 
-#plt.savefig('/home/clionaodoherty/Desktop/cmc_figs/stats/temp_train_lab_act.pdf')
+plt.savefig('/home/clionaodoherty/Desktop/cmc_figs/stats/main.pdf')
 plt.show()
