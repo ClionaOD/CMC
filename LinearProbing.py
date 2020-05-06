@@ -184,6 +184,7 @@ def get_train_val_loader(args):
 
 
 def set_model(args):
+    print(args.view)
     if args.model.startswith('alexnet'):
         if not args.view == 'temporal':
             model = MyAlexNetCMC()
