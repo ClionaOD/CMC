@@ -31,7 +31,7 @@ def hierarchical_clustering(matrix, label_list, outpath=None):
 
     return cluster_order
 
-act_path = './activations/temporal_lab/'
+act_path = './activations/main/'
 
 #choose items and create dict of their clusters
 chosenCategs = ['gown', 'hair', 'suit', 'coat', 'tie', 'shirt', 'sunglasses', 'shoe', 'screen', 'computer', 'table', 'food', 'restaurant', 'glass', 'alcohol', 'wine', 'lamp', 'couch', 'chair', 'closet', 'piano', 'pillow', 'desk', 'window', 'bannister']
@@ -57,7 +57,7 @@ fig1.subplots_adjust(wspace=0.4, hspace=0.8)
 fig2, ((leg,axs1,axs2),(b1,axs3,axs4),(b2,axs5,axs6)) = plt.subplots(
     nrows=3, 
     ncols=3, 
-    figsize=(8.27,11.69), 
+    figsize=(9,12), 
     gridspec_kw={'width_ratios': [0.1,5,5]}
 )
 b1.axis('off')
@@ -127,6 +127,8 @@ for file in os.listdir(act_path):
         #plot RDMs and MDS
         if 'random' in title:
             ax = sns.heatmap(rdm, ax=ax1)
+            cbar = ax.collections[0].colorbar
+            cbar.ax.tick_params(labelsize=9)
             ax.set_title('Random weights', fontsize=10)
             ax.tick_params('y',labelsize=8)
             ax.tick_params('x', labelsize=7)
@@ -140,6 +142,8 @@ for file in os.listdir(act_path):
             axs1.spines['right'].set_visible(False)
         elif 'lab' in title:
             ax = sns.heatmap(rdm,  ax=ax2)
+            cbar = ax.collections[0].colorbar
+            cbar.ax.tick_params(labelsize=9)
             ax.set_title('Lab trained', fontsize=10)
             ax.tick_params('y',labelsize=8)
             ax.tick_params('x', labelsize=7)
@@ -153,6 +157,8 @@ for file in os.listdir(act_path):
             axs2.spines['right'].set_visible(False)
         elif '1sec' in title:
             ax = sns.heatmap(rdm,  ax=ax3)
+            cbar = ax.collections[0].colorbar
+            cbar.ax.tick_params(labelsize=9)
             ax.set_title('Finetuned - 1 sec lag', fontsize=10)
             ax.tick_params('y',labelsize=8)
             ax.tick_params('x', labelsize=7)
@@ -166,6 +172,8 @@ for file in os.listdir(act_path):
             axs3.spines['right'].set_visible(False)
         elif '10sec' in title:
             ax = sns.heatmap(rdm,  ax=ax4)
+            cbar = ax.collections[0].colorbar
+            cbar.ax.tick_params(labelsize=9)
             ax.set_title('Finetuned - 10 sec lag', fontsize=10)
             ax.tick_params('y',labelsize=8)
             ax.tick_params('x', labelsize=7)
@@ -179,12 +187,14 @@ for file in os.listdir(act_path):
             axs4.spines['right'].set_visible(False)
         elif '30sec' in title:
             ax = sns.heatmap(rdm,  ax=ax5)
+            cbar = ax.collections[0].colorbar
+            cbar.ax.tick_params(labelsize=9)
             ax.set_title('Finetuned - 30 sec lag', fontsize=10)
             ax.tick_params('y',labelsize=8)
             ax.tick_params('x', labelsize=7)
 
             sns.scatterplot(x=df_embedding[0],y=df_embedding[1],hue=df_embedding['category'], legend=False,  ax=axs5)
-            axs5.set_title('30sec finetune')
+            axs5.set_title('30sec finetuned')
             axs5.set_xlabel(' ')
             axs5.set_ylabel(' ')
             axs5.axis('equal')
@@ -192,6 +202,8 @@ for file in os.listdir(act_path):
             axs5.spines['right'].set_visible(False)
         else:
             ax = sns.heatmap(rdm,  ax=ax6)
+            cbar = ax.collections[0].colorbar
+            cbar.ax.tick_params(labelsize=9)
             ax.set_title('Finetuned - 60 sec lag', fontsize=10)
             ax.tick_params('y',labelsize=8)
             ax.tick_params('x', labelsize=7)
@@ -211,8 +223,8 @@ leg.legend(handles, labels)
 leg.axis('off')
 
 plt.tight_layout()
-#fig1.savefig('/home/clionaodoherty/Desktop/cmc_figs/nice/rdms.pdf')
-#fig2.savefig('/home/clionaodoherty/Desktop/cmc_figs/nice/mds.pdf')
+#fig1.savefig('/home/clionaodoherty/Desktop/cmc_figs/')
+#fig2.savefig('/home/clionaodoherty/Desktop/cmc_figs/nice/')
 plt.show()
 
 #plt.close()
