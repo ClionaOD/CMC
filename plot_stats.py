@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 import scipy.spatial.distance as ssd
 from scipy import stats
@@ -82,16 +83,21 @@ for idx, x in enumerate(layers):
 stats_df = pd.DataFrame(stats_df.values, columns=stats_df.columns, index=['lab trained', 'random weights', '1sec finetuned', '60sec finetuned', '30sec finetuned', '10sec finetuned'])
 stats_df = stats_df.reindex(['lab trained', 'random weights', '1sec finetuned','10sec finetuned', '30sec finetuned', '60sec finetuned'])
 fig, (ax1,leg) = plt.subplots(nrows=1,ncols=2,gridspec_kw={'width_ratios': [1,.3]})
-stats_df.T.plot.line(ax=ax1)
+fig.subplots_adjust(wspace=0.5)
+sns.lineplot(data=stats_df.T.astype(float), ax=ax1)
 handles, labels = ax1.get_legend_handles_labels()
 ax1.get_legend().remove()
+ax1.spines['top'].set_visible(False)
+ax1.spines['right'].set_visible(False)
+ax1.set_xlabel('alexnet layer')
+ax1.set_ylabel('Kendall\'s tau')
 leg.legend(handles, labels)
-leg.axis('off')
+leg.axis('off') 
 
 sigs=list(zip(np.where(sig_df==1)[0], np.where(sig_df==1)[1]))
 for x in sigs:
     anot = (x[1] , stats_df.iloc[x[0]][x[1]])
     ax1.annotate('*', anot)
 
-plt.savefig('/home/clionaodoherty/Desktop/cmc_figs/stats/main.pdf')
+#plt.savefig('/home/clionaodoherty/Desktop/cmc_figs/stats/full_vs_labfinetune.pdf')
 plt.show()
