@@ -12,6 +12,8 @@ from scipy import stats
 from skbio.stats.distance import mantel
 
 act_path = './activations/main/'
+binary_rdm = False
+assoc_comp = True
 
 chosenCategs = ['gown', 'hair', 'suit', 'coat', 'tie', 'shirt', 'sunglasses', 'shoe', 'screen', 'computer', 'table', 'food', 'restaurant', 'glass', 'alcohol', 'wine', 'lamp', 'couch', 'chair', 'closet', 'piano', 'pillow', 'desk', 'window', 'bannister']
 clusters = {}
@@ -24,13 +26,24 @@ clusters = {k:v for k,v in clusters.items() if k in chosenCategs}
 cluster_df = pd.DataFrame.from_dict(clusters, orient='index')
 
 #create binary model rdm - 0 indicates within category partner and 1 across
-model_rdm = pd.DataFrame(data=np.ones((25,25)),index=chosenCategs, columns=chosenCategs)
-for k1, v1 in cluster_df.iterrows():
-    for k2, v2 in cluster_df.iterrows():
-        if v1[0] == v2[0]:
-            model_rdm.loc[k1][k2] = 0
-            model_rdm.loc[k2][k1] = 0
-np.fill_diagonal(model_rdm.values, 0)
+if binary_rdm:
+    model_rdm = pd.DataFrame(data=np.ones((25,25)),index=chosenCategs, columns=chosenCategs)
+    for k1, v1 in cluster_df.iterrows():
+        for k2, v2 in cluster_df.iterrows():
+            if v1[0] == v2[0]:
+                model_rdm.loc[k1][k2] = 0
+                model_rdm.loc[k2][k1] = 0
+    np.fill_diagonal(model_rdm.values, 0)
+elif assoc_comp:
+    with open('/home/clionaodoherty/Desktop/associations/results/imagenet_categs.pickle','rb') as f:
+        model_rdm = pickle.load(f)
+    model_rdm = model_rdm['lag_1']
+    model_rdm = 1 - (model_rdm + model_rdm.T)
+    np.fill_diagonal(model_rdm.values, 0)
+else:
+    with open('./w2v_for_cmc.pickle','rb') as f:
+        model_rdm = pickle.load(f)
+    np.fill_diagonal(model_rdm.values, 0)
 
 #choose the layer to evaluate
 layers = ['conv1', 'conv2', 'conv3', 'conv4', 'conv5', 'fc6', 'fc7']
@@ -99,5 +112,5 @@ for x in sigs:
     anot = (x[1] , stats_df.iloc[x[0]][x[1]])
     ax1.annotate('*', anot)
 
-#plt.savefig('/home/clionaodoherty/Desktop/cmc_figs/stats/full_vs_labfinetune.pdf')
+plt.savefig('/home/clionaodoherty/Desktop/cmc_figs/stats/3min_comp.pdf')
 plt.show()
