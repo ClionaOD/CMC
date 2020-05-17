@@ -38,7 +38,7 @@ elif assoc_comp:
     with open('/home/clionaodoherty/Desktop/associations/results/imagenet_categs.pickle','rb') as f:
         model_rdm = pickle.load(f)
     model_rdm = model_rdm['lag_1']
-    model_rdm = 1 - (model_rdm + model_rdm.T)
+    model_rdm = -1 * (model_rdm + model_rdm.T)
     np.fill_diagonal(model_rdm.values, 0)
 else:
     with open('./w2v_for_cmc.pickle','rb') as f:
@@ -112,5 +112,5 @@ for x in sigs:
     anot = (x[1] , stats_df.iloc[x[0]][x[1]])
     ax1.annotate('*', anot)
 
-plt.savefig('/home/clionaodoherty/Desktop/cmc_figs/stats/3min_comp.pdf')
+#plt.savefig('/home/clionaodoherty/Desktop/cmc_figs/stats/3min_comp.pdf')
 plt.show()
