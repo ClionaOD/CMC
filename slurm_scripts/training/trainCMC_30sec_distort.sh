@@ -16,4 +16,5 @@ python3 /home/clionaodoherty/CMC/train_CMC.py \
     --view temporal \
     --lr_decay_epochs 120,160,200 \
     --epochs 220 \
-    --distort True 
+    --distort True \
+    --resume /data/movie-associations/saves/temporal/30sec/distorted/memory_nce_16384_alexnet_lr_0.03_decay_0.0001_bsz_128_sec_30_view_temporal/ckpt_epoch_127.pth
