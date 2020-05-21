@@ -66,6 +66,10 @@ b2.axis('off')
 ref = False
 align = np.array([])
 
+mds_dict = {}
+rdm_dict = {}
+stat_dict = {}
+
 #plot activations
 for file in os.listdir(act_path):
     if os.path.isdir('{}{}'.format(act_path,file)):
@@ -111,6 +115,11 @@ for file in os.listdir(act_path):
         #reindex rdm by category membership
         rdm = rdm.reindex(index=chosenCategs, columns=chosenCategs)
 
+        #make and save dendrogram
+        linkage = sch.linkage(ssd.squareform(rdm.values), metric='ward')
+        clust_fig = sns.clustermap(rdm, row_linkage=linkage, col_linkage=linkage)
+        #clust_fig.savefig('/home/clionaodoherty/Desktop/cmc_figs/dends/{}_cluster.pdf'.format(title))
+
         #create binary model rdm - 0 indicates within category partner and 1 across
         model_rdm = pd.DataFrame(data=np.ones((25,25)),index=chosenCategs, columns=chosenCategs)
         for k1, v1 in df_embedding.iterrows():
@@ -123,7 +132,12 @@ for file in os.listdir(act_path):
         #statistical testing of category effect using Pearson correlation and Mantel test
         corr, pval, n = mantel(rdm.values, model_rdm.values, method='kendalltau')
         print('{}: corr={} p={}'.format(title,corr,pval))
+        
+        mds_dict[title] = df_embedding
+        rdm_dict[title] = rdm
+        stat_dict[title] = {'corr':corr,'pval':pval}
 
+        """
         #plot RDMs and MDS
         if 'random' in title:
             ax = sns.heatmap(rdm, ax=ax1)
@@ -215,8 +229,14 @@ for file in os.listdir(act_path):
             axs6.axis('equal')
             axs6.spines['top'].set_visible(False)
             axs6.spines['right'].set_visible(False)
+        """
 
+results = {'rdm':rdm_dict, 'mds':mds_dict, 'stats':stat_dict}
 
+with open('./activations_results_layer{}'.format(chosenLayer), 'wb') as f:
+    pickle.dump(results,f)
+
+"""
 handles, labels = axs1.get_legend_handles_labels()
 axs1.get_legend().remove()
 leg.legend(handles, labels)
@@ -228,3 +248,4 @@ plt.tight_layout()
 plt.show()
 
 #plt.close()
+"""
