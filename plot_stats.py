@@ -93,11 +93,13 @@ for idx, x in enumerate(layers):
             else:
                 sig_df.loc[title][chosenLayer] = 0
 
-stats_df = pd.DataFrame(stats_df.values, columns=stats_df.columns, index=['lab trained','random weights','1sec finetuned','60sec finetuned', '30sec finetuned', '10sec finetuned'])
-stats_df = stats_df.reindex(['lab trained', 'random weights', '1sec finetuned','10sec finetuned', '30sec finetuned', '60sec finetuned'])
+stats_df = pd.DataFrame(stats_df.values, columns=stats_df.columns, index=['Lab ImageNet','random weights','1sec finetuned','60sec finetuned', 'Lab movie dataset', '30sec finetuned', '10sec finetuned'])
+sig_df = pd.DataFrame(sig_df.values, columns=sig_df.columns, index=['Lab ImageNet','random weights','1sec finetuned','60sec finetuned', 'Lab movie dataset', '30sec finetuned', '10sec finetuned'])
+stats_df = stats_df.reindex(['random weights', 'Lab ImageNet', 'Lab movie dataset' ,'1sec finetuned','10sec finetuned', '30sec finetuned', '60sec finetuned'])
+sig_df = sig_df.reindex(stats_df.index)
 fig, (ax1,leg) = plt.subplots(nrows=1,ncols=2,gridspec_kw={'width_ratios': [1,.3]})
 fig.subplots_adjust(wspace=0.5)
-sns.lineplot(data=stats_df.T.astype(float), ax=ax1)
+sns.lineplot(data=stats_df.T.astype(float), ax=ax1, dashes=False)
 handles, labels = ax1.get_legend_handles_labels()
 ax1.get_legend().remove()
 ax1.spines['top'].set_visible(False)
@@ -112,5 +114,5 @@ for x in sigs:
     anot = (x[1] , stats_df.iloc[x[0]][x[1]])
     ax1.annotate('*', anot)
 
-plt.savefig('/home/clionaodoherty/Desktop/cmc_figs/stats/finetuned_to_model.pdf')
+plt.savefig('/home/clionaodoherty/Desktop/cmc_figs/stats/stats_w_Lab_movie.pdf')
 plt.show()
