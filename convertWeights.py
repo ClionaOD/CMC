@@ -4,7 +4,7 @@ import collections
 
 from models.alexnet import TemporalAlexNetCMC
 
-pretrained = torch.load('/home/clionaodoherty/CMC/models/CMC_alexnet.pth')
+pretrained = torch.load('/data/movie-associations/saves/Lab/movie-pretrain/memory_nce_16384_alexnet_lr_0.03_decay_0.0001_bsz_128_view_Lab/ckpt_epoch_200.pth')
 pretrained = pretrained['model']
 l_to_ab = collections.OrderedDict((k,v) for k,v in pretrained.items() if 'l_to_ab' in k)
 ab_to_l = collections.OrderedDict((k,v) for k,v in pretrained.items() if 'ab_to_l' in k)
@@ -62,7 +62,7 @@ temporal['model'] = new_layers
 
 model = TemporalAlexNetCMC()
 model.load_state_dict(temporal['model'])
-torch.save(model.state_dict(), '/home/clionaodoherty/movie-associations/saves/Lab_pretrained_fullAlexNet.pth')
+torch.save(model.state_dict(), '/data/movie-associations/saves/movie_Lab.pth')
     
 
 
