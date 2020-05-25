@@ -105,7 +105,7 @@ if __name__ == '__main__':
     args = parse_option()
 
     modelpth = args.model_path
-    checkpoint = torch.load(modelpth) #['model']
+    checkpoint = torch.load(modelpth)['model']
 
     model = TemporalAlexNetCMC()
     model.load_state_dict(checkpoint)
