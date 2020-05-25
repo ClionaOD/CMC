@@ -9,7 +9,7 @@ pretrained = pretrained['model']
 l_to_ab = collections.OrderedDict((k,v) for k,v in pretrained.items() if 'l_to_ab' in k)
 ab_to_l = collections.OrderedDict((k,v) for k,v in pretrained.items() if 'ab_to_l' in k)
 
-temporal = torch.load('/home/clionaodoherty/movie-associations/saves/temporal/movie-pretrain-1min/memory_nce_16384_alexnet_lr_0.6_decay_1e-05_bsz_512_sec_60_view_temporal/ckpt_epoch_1.pth')
+temporal = torch.load('/data/movie-associations/saves/temporal/1min/movie-pretrain-1min/ckpt_epoch_220.pth')
 temporal = collections.OrderedDict((k,v) for k,v in temporal.items() if k == 'model' or k =='epoch')
 temp_layers = list(temporal['model'].keys())
 temp_weights = list(temporal['model'].values())
