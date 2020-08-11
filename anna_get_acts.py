@@ -63,7 +63,7 @@ def compute_features(dataloader, model, N):
         """An ugly but effective way of accessing intermediate model features
         """
         _model_feats.append(output.cpu().numpy())
-    for m in model.encoder.modules():
+    for m in model.modules():               #model.encoder.modules() for my own alexnet/model
         if isinstance(m, nn.ReLU):
             m.register_forward_hook(_store_feats)
     #for m in model.classifier.modules():
