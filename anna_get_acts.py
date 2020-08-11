@@ -16,6 +16,7 @@ import torch.optim
 import torch.utils.data
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
+from torchvision.models import alexnet
 import datetime
 
 #import clustering
@@ -34,6 +35,7 @@ def parse_option():
     parser.add_argument('--model_path', type=str, help='model to get activations of')
     parser.add_argument('--save_path', type=str, help='path to save activations')
     parser.add_argument('--transform', type=str, choices=['Lab','distort'], help='color transform to use')
+    parser.add_argument('--supervised', type=bool, default=False, help='whether to test against supervised AlexNet')
 
     opt = parser.parse_args()
 
@@ -104,12 +106,17 @@ def get_activations(offset, args):
 if __name__ == '__main__':
     args = parse_option()
 
-    modelpth = args.model_path
-    checkpoint = torch.load(modelpth)['model']
+    if not args.supervised:
+        modelpth = args.model_path
+        checkpoint = torch.load(modelpth)['model']
 
-    model = TemporalAlexNetCMC()
-    model.load_state_dict(checkpoint)
-    model.cuda()
+        model = TemporalAlexNetCMC()
+        model.load_state_dict(checkpoint)
+        model.cuda()
+    else:
+        model = alexnet(pretrained=True)
+        model.cuda()
+
     image_pth = '/home/clionaodoherty/imagenet_samples/' 
     act = get_activations(image_pth, args)
     print('activations computed')
