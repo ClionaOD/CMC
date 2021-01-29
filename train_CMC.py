@@ -164,8 +164,8 @@ def get_train_loader(args):
         std = [109.500, 111.855, 111.964]
         color_transfer = RGB2YCbCr()
     elif args.view == 'temporal':                                                       
-        mean = [(0 + 100) / 2, (-86.183 + 98.233) / 2, (-107.857 + 94.478) / 2]
-        std = [(100 - 0) / 2, (86.183 + 98.233) / 2, (107.857 + 94.478) / 2]
+        mean = [0.4493, 0.4348, 0.3970]
+        std = [0.3030, 0.3001, 0.3016]
         if args.distort:
             color_transfer = get_color_distortion()
         else:
